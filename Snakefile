@@ -35,6 +35,9 @@ rule mask_genome_with_repeatmasker:
 		'envs/Finding_SDs.yaml'
 	params:
 		output_dir = "results/mask_genome_with_repeatmasker/",
+		time = '10:00:00',
+		threads = 2,
+		mem = 20000,
 		name = "RepeatMasker",
 	shell:
 		"RepeatMasker -s -xsmall -e ncbi {input.genome_with_trf} -dir $(dirname {output.masked_genome}) >> {log.out} 2> {log.err}"
@@ -53,6 +56,11 @@ rule index_genome:
 		out = "logs/index_genome/index.out"
 	conda:
 		"envs/Finding_SDs.yaml"
+	params:
+		time = '01:00:00',
+		threads = 1,
+		mem = 20000,
+		name = "Samtools"
 	shell:
 		"samtools faidx {input.masked_genome} > {log.out} 2> {log.err}"
 
@@ -71,7 +79,10 @@ rule finding_SDs:
 	conda:
 		"envs/Finding_SDs.yaml"
 	params:
-		threads = "4",  # Adjust
+		time = '10:00:00',
+		threads = 4,
+		mem = 50000,
+		name = "Biser"		
 	shell:
         "biser -o {output.SDs} -t {params.threads} {input.indexed_genome} > {log.out} 2> {log.err}"
 
