@@ -12,6 +12,9 @@ rule mask_tandem_repeats_with_trf:
 	conda:
 		'envs/Finding_SDs.yaml'
 	params:
+		time = '10:00:00',
+		threads = 2,
+		mem = 20000,
 		name = "Tandem_Repeat_Finder"
 	shell:
 		"trf {input.amphioxus_genome} 2 7 7 80 10 50 15 -l 25 -h -ngs > {output.genome_with_trf} 2> {log.err}"
@@ -41,34 +44,34 @@ rule mask_genome_with_repeatmasker:
 	Indexing genome with samtools
 	'''
 rule index_genome:
-    input:
-        masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
-    output:
-        indexed_genome = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome_trf_masked.fa.fai"
-    log:
-        err = "logs/index_genome/index.err",
-        out = "logs/index_genome/index.out"
-    conda:
-        "envs/Finding_SDs.yaml"
-    shell:
-        "samtools faidx {input.masked_genome} > {log.out} 2> {log.err}"
+	input:
+		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
+	output:
+		indexed_genome = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome_trf_masked.fa.fai"
+	log:
+		err = "logs/index_genome/index.err",
+		out = "logs/index_genome/index.out"
+	conda:
+		"envs/Finding_SDs.yaml"
+	shell:
+		"samtools faidx {input.masked_genome} > {log.out} 2> {log.err}"
 
 
 	'''
 	Find SDs in the genome using BISER
 	'''
 rule finding_SDs:
-    input:
-        indexed_genome = rules.index_genome.output.indexed_genome
-    output:
-        SDs = "results/finding_SDs/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
-    log:
-        err = "logs/finding_SDs/biser.err",
-        out = "logs/finding_SDs/biser.out"
-    conda:
-        "envs/Finding_SDs.yaml"
-    params:
-        threads = "4",  # Adjust
-    shell:
+	input:
+		indexed_genome = rules.index_genome.output.indexed_genome
+	output:
+		SDs = "results/finding_SDs/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
+	log:
+		err = "logs/finding_SDs/biser.err",
+		out = "logs/finding_SDs/biser.out"
+	conda:
+		"envs/Finding_SDs.yaml"
+	params:
+		threads = "4",  # Adjust
+	shell:
         "biser -o {output.SDs} -t {params.threads} {input.indexed_genome} > {log.out} 2> {log.err}"
 
