@@ -84,5 +84,5 @@ rule finding_SDs:
 		mem = 50000,
 		name = "Biser"		
 	shell:
-        "biser -o {output.SDs} -t {params.threads} {input.indexed_genome} > {log.out} 2> {log.err}"
+		"biser -o {output.SDs} -t {params.threads} {input.indexed_genome} > {log.out} 2> {log.err}"
 
