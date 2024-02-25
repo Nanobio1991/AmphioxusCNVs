@@ -28,7 +28,7 @@ rule index_genome:
 	input:
 		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
 	output:
-		indexed_genome = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome_masked.fa.fai"
+		indexed_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome_masked.fa.fai"
 	log:
 		err = "logs/index_genome/index.err",
 		out = "logs/index_genome/index.out"
