@@ -7,6 +7,6 @@ dependencies:
   - trf=4.09.1
   - python=3.9.18 
   - samtools=1.19.2
-  - pip
-  - pip:
-      - biser==1.4
+#  - pip
+#  - pip:
+#      - biser==1.4

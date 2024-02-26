@@ -18,7 +18,7 @@ rule mask_genome_with_repeatmasker:
 		mem = 20000,
 		name = "RepeatMasker",
 	shell:
-		"RepeatMasker -s -xsmall -e ncbi {input.amphioxus_genome} -dir $(dirname {output.masked_genome}) >> {log.out} 2> {log.err}"
+		"RepeatMasker -s -xsmall -e ncbi {input.amphioxus_genome} -dir $(dirname {output.masked_genome}) > {log.out} 2> {log.err}"
 
 
 	'''
@@ -48,7 +48,7 @@ rule index_genome:
 	'''
 rule finding_SDs:
 	input:
-		indexed_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked"
+		indexed_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
 	output:
 		SDs = "results/finding_SDs/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
 	log:
