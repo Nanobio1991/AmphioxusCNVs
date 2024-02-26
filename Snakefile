@@ -5,7 +5,7 @@ rule mask_genome_with_repeatmasker:
 	input:
 		amphioxus_genome = "data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
 	output:
-		masked_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome_masked.fa"
+		masked_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked"
 	log:
 		err = "logs/mask_genome_with_repeatmasker/RepeatMasker.err",
 		out = "logs/mask_genome_with_repeatmasker/RepeatMasker.out"
@@ -26,9 +26,9 @@ rule mask_genome_with_repeatmasker:
 	'''
 rule index_genome:
 	input:
-		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
+		masked_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked"
 	output:
-		indexed_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome_masked.fa.fai"
+		indexed_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked.fai"
 	log:
 		err = "logs/index_genome/index.err",
 		out = "logs/index_genome/index.out"
@@ -48,7 +48,7 @@ rule index_genome:
 	'''
 rule finding_SDs:
 	input:
-		indexed_genome = rules.index_genome.output.indexed_genome
+		indexed_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked"
 	output:
 		SDs = "results/finding_SDs/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
 	log:
