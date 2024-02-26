@@ -22,6 +22,25 @@ rule mask_genome_with_repeatmasker:
 
 
 	'''
+	Mask repeats in the genome using Tandem repeats Finder
+	'''
+rule mask_tandem_repeats_with_trf:
+	input:
+		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
+	output :
+		masked_genome_with_trf = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_masked_trf.fa" 
+	log:
+		err = "logs/mask_tandem_repeats_with_trf/trf.err",
+		out = "logs/mask_tandem_repeats_with_trf/trf.out"
+	conda:
+		'envs/Finding_SDs.yaml'
+	params:
+		name = "Tandem_Repeat_Finder"
+	shell:
+		"trf {input.masked_genome} 2 7 7 80 10 50 15 -l 25 -h -m > {output.masked_genome_with_trf} 2> {log.err}"
+
+
+	'''
 	Indexing genome with samtools
 	'''
 rule index_genome:
