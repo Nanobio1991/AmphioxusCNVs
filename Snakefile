@@ -10,7 +10,7 @@ rule mask_tandem_repeats_with_trf:
 		err = "logs/mask_tandem_repeats_with_trf/trf.err",
 		out = "logs/mask_tandem_repeats_with_trf/trf.out"
 	conda:
-		'envs/Finding_SDs.yaml'
+		"envs/Finding_SDs.yaml"
 	params:
 		name = "Tandem_Repeat_Finder",
 		time = '10:00:00',
@@ -31,7 +31,7 @@ rule mask_genome_with_repeatmasker:
 		err = "logs/mask_genome_with_repeatmasker2/RepeatMasker.err",
 		out = "logs/mask_genome_with_repeatmasker2/RepeatMasker.out"
 	conda:
-		'envs/Finding_SDs.yaml'
+		"envs/Finding_SDs.yaml"
 	params:
 		output_dir = "results/mask_genome_with_repeatmasker/",
 		time = '10:00:00',
