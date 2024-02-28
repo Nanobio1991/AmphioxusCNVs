@@ -17,7 +17,12 @@ rule mask_tandem_repeats_with_trf:
 		threads = 2,
 		mem = 20000,
 	shell:
-		"trf {input.amphioxus_genome} 2 7 7 80 10 50 15 -l 25 -h -m > {log.out} 2> {log.err}"
+		"""
+		pwd=$(pwd)
+		cd $(dirname {output.genome_trf})
+		trf {input.amphioxus_genome} 2 7 7 80 10 50 15 -l 25 -h -m $(basename {output.genome_trf}) > {log.out} 2> {log.err}
+		cd ${{pwd}}
+		"""
 
 
 	'''
