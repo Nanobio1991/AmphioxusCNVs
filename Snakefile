@@ -70,7 +70,8 @@ rule index_genome:
 	'''
 rule finding_SDs:
 	input:
-		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
+		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome,
+		indexed_genome = rules.index_genome.output.indexed_genome
 	output:
 		SDs = "results/finding_SDs/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
 	log:
