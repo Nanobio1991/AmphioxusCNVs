@@ -93,10 +93,10 @@ rule finding_SDs:
 		maskedN_genome = rules.replace_bases_with_N.output.maskedN_genome,
 		indexed_genome = rules.index_genome.output.indexed_genome
 	output:
-		SDs = "results/finding_SDs/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
+		SDs = "results/finding_SDs2/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
 	log:
-		err = "logs/finding_SDs/biser.err",
-		out = "logs/finding_SDs/biser.out"
+		err = "logs/finding_SDs2/biser.err",
+		out = "logs/finding_SDs2/biser.out"
 	conda:
 		"envs/Finding_SDs.yaml"
 	params:
@@ -105,4 +105,4 @@ rule finding_SDs:
 		mem = 50000,
 		name = "Biser"		
 	shell:
-		"biser -o {output.SDs} -t {params.threads} {input.maskedN_genome} > {log.out} 2> {log.err}"
+		"biser -o {output.SDs} -t --gc-heap 1G {params.threads} {input.maskedN_genome} > {log.out} 2> {log.err}"
