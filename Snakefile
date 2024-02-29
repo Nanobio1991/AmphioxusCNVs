@@ -28,8 +28,8 @@ rule mask_genome_with_repeatmasker:
 	output:
 		masked_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask.masked"
 	log:
-		err = "logs/mask_genome_with_repeatmasker2/RepeatMasker.err",
-		out = "logs/mask_genome_with_repeatmasker2/RepeatMasker.out"
+		err = "logs/mask_genome_with_repeatmasker/RepeatMasker.err",
+		out = "logs/mask_genome_with_repeatmasker/RepeatMasker.out"
 	conda:
 		"envs/Finding_SDs.yaml"
 	params:
@@ -43,13 +43,34 @@ rule mask_genome_with_repeatmasker:
 
 
 	'''
+	Replace lower bases with "N"
+	'''
+rule replace_bases_with_N:
+	input:
+		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
+	output:
+		maskedN_genome = "results/masked_genome/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked"
+	log:
+		err = "logs/replace/replace.err",
+		out = "logs/replace/replace.out"
+	conda:
+		"envs/Finding_SDs.yaml"
+	params:
+		time = '01:00:00',
+		threads = 1,
+		mem = 20000,
+		name = "Samtools"
+	shell:
+		"sed 's/[atgc]/N/g' {input.masked_genome} > {output.maskedN_genome}"
+
+	'''
 	Indexing genome with samtools
 	'''
 rule index_genome:
 	input:
-		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
+		masked_genome = rules.replace_bases_with_N.output.maskedN_genome
 	output:
-		indexed_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask.masked.fai"
+		indexed_genome = "results/masked_genome/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked.fai"
 	log:
 		err = "logs/index_genome/index.err",
 		out = "logs/index_genome/index.out"
@@ -69,7 +90,7 @@ rule index_genome:
 	'''
 rule finding_SDs:
 	input:
-		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome,
+		maskedN_genome = rules.replace_bases_with_N.output.maskedN_genome,
 		indexed_genome = rules.index_genome.output.indexed_genome
 	output:
 		SDs = "results/finding_SDs/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
@@ -84,4 +105,4 @@ rule finding_SDs:
 		mem = 50000,
 		name = "Biser"		
 	shell:
-		"biser -o {output.SDs} -t {params.threads} {input.masked_genome} > {log.out} 2> {log.err}"
+		"biser -o {output.SDs} -t {params.threads} {input.maskedN_genome} > {log.out} 2> {log.err}"
