@@ -90,13 +90,12 @@ rule index_genome:
 	'''
 rule finding_SDs:
 	input:
-		maskedN_genome = rules.replace_bases_with_N.output.maskedN_genome,
-		indexed_genome = rules.index_genome.output.indexed_genome
+		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
 	output:
-		SDs = "results/finding_SDs2/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
+		SDs = "results/finding_SDs_2/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
 	log:
-		err = "logs/finding_SDs2/biser.err",
-		out = "logs/finding_SDs2/biser.out"
+		err = "logs/finding_SDs_2/biser.err",
+		out = "logs/finding_SDs_2/biser.out"
 	conda:
 		"envs/Finding_SDs.yaml"
 	params:
