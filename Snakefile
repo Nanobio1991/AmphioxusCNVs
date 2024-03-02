@@ -44,7 +44,7 @@ rule mask_genome_with_repeatmasker:
 
 	'''
 	Replace lower bases with "N"
-	'''
+
 rule replace_bases_with_N:
 	input:
 		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
@@ -63,9 +63,9 @@ rule replace_bases_with_N:
 	shell:
 		"sed 's/[atgc]/N/g' {input.masked_genome} > {output.maskedN_genome}"
 
-	'''
+
 	Indexing genome with samtools
-	'''
+	
 rule index_genome:
 	input:
 		masked_genome = rules.replace_bases_with_N.output.maskedN_genome
@@ -83,7 +83,7 @@ rule index_genome:
 		name = "Samtools"
 	shell:
 		"samtools faidx {input.masked_genome} > {log.out} 2> {log.err}"
-
+'''
 
 	'''
 	Find SDs in the genome using BISER
