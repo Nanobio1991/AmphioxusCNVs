@@ -93,7 +93,6 @@ rule index_genome:
 rule finding_SDs:
 	input:
 		maskedN_genome = rules.replace_bases_with_N.output.maskedN_genome
-		indexed_genome = rules.index_genome.output.indexed_genome
 	output:
 		SDs = "results/finding_SDs_3/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
 	log:
