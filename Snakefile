@@ -44,6 +44,7 @@ rule mask_genome_with_repeatmasker:
 
 	'''
 	Replace lower bases with "N"
+	'''
 
 rule replace_bases_with_N:
 	input:
@@ -64,11 +65,12 @@ rule replace_bases_with_N:
 		"sed 's/[atgc]/N/g' {input.masked_genome} > {output.maskedN_genome}"
 
 
+	'''
 	Indexing genome with samtools
-	
+	'''
 rule index_genome:
 	input:
-		masked_genome = rules.replace_bases_with_N.output.maskedN_genome
+		maskedN_genome = rules.replace_bases_with_N.output.maskedN_genome
 	output:
 		indexed_genome = "results/masked_genome/Branchiostoma_lanceolatum.BraLan3_genome.fa.masked.fai"
 	log:
@@ -82,20 +84,21 @@ rule index_genome:
 		mem = 20000,
 		name = "Samtools"
 	shell:
-		"samtools faidx {input.masked_genome} > {log.out} 2> {log.err}"
-'''
+		"samtools faidx {input.maskedN_genome} > {log.out} 2> {log.err}"
+
 
 	'''
 	Find SDs in the genome using BISER
 	'''
 rule finding_SDs:
 	input:
-		masked_genome = rules.mask_genome_with_repeatmasker.output.masked_genome
+		maskedN_genome = rules.replace_bases_with_N.output.maskedN_genome
+		indexed_genome = rules.index_genome.output.indexed_genome
 	output:
-		SDs = "results/finding_SDs_2/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
+		SDs = "results/finding_SDs_3/Branchiostoma_lanceolatum.BraLan3_SDs.bedpe",
 	log:
-		err = "logs/finding_SDs_2/biser.err",
-		out = "logs/finding_SDs_2/biser.out"
+		err = "logs/finding_SDs_3/biser.err",
+		out = "logs/finding_SDs_3/biser.out"
 	conda:
 		"envs/Finding_SDs.yaml"
 	params:
@@ -104,4 +107,4 @@ rule finding_SDs:
 		mem = 50000,
 		name = "Biser"		
 	shell:
-		"biser -o {output.SDs} -t {params.threads} --gc-heap 1G {input.masked_genome} > {log.out} 2> {log.err}"
+		"biser -o {output.SDs} -t {params.threads} --gc-heap 1G --hard {input.maskedN_genome} > {log.out} 2> {log.err}"
