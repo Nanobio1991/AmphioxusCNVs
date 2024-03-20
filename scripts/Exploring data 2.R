@@ -98,6 +98,30 @@ hist(sd_data$mean_length, breaks = 10000, xlim = c(0, 3000), main = "Raw data SD
 hist(sd_data_filtered$mean_length, breaks = 3000, xlim = c(0, 3000), main = "Filtered SD length")
 
 
+# Create a histogram with two colors based on the 'same_chromosome' column
+hist(sd_data_filtered$mean_length[sd_data_filtered$same_chromosome == TRUE], 
+     breaks = 5000, 
+     xlim = c(0, 3000),
+     ylim = c(0, 80000),
+     col = "blue", 
+     main = "Filtered SD length - Same Chromosome",
+     xlab = "bp")
+
+
+# Add histogram for 'same_chromosome == FALSE' with a different color
+hist(sd_data_filtered$mean_length[sd_data_filtered$same_chromosome == FALSE], 
+     breaks = 3000, 
+     xlim = c(0, 3000),
+     ylim = c(0, 75000),
+     col = rgb(1, 0.5, 0, 0.5), 
+     add = TRUE)
+
+# Add legend
+legend("topright", legend = c("Same Chromosome", "Different Chromosome"), fill = c("blue", "orange"))
+
+
+
+
 ###############################################################################
 ########################  HISTOGRAMS OF SIMILARITY  ###########################
 ###############################################################################
@@ -348,9 +372,10 @@ mean(different_chr_sd$mean_length)
 
 
 ###############################################################################
+############ PLOT GRAPH PER CHROMOSMES ########################################
+###############################################################################
 
-
-################ CREATE DATA FRAME FOR THE LENGTH OF CHROMOSOMES ################
+## CREATE DATA FRAME FOR THE LENGTH OF CHROMOSOMES ################
 
 length_chr <- read.table('Branchiostoma_lanceolatum.BraLan3_chr_lengths.txt', header = FALSE, sep = "\t")
 head(length_chr)
@@ -404,10 +429,7 @@ write.table(sd_positions_sorted, "sd_positions_sorted.bed",
 
 sd_positions_merged <- read.table('sd_positions_merged.bed', header = FALSE, sep = "\t")
 
-
-###################################################################
-############ PLOT GRAPH PER CHROMOSMES ############################
-###################################################################
+############################################################
 
 
 plot_all_chr_rows_len <- function(lenDF, regDF, color){
@@ -435,10 +457,10 @@ plot_all_chr_rows_len <- function(lenDF, regDF, color){
   }
   
   # Create descriptive labels for each chromosome
-  chrLabels <- paste(rev(lenDF$Chr), "(", rev(lenDF$Length), "bp)", sep=" ")
+  chrLabels <- lenDF$Chr
   
   # Add y-axis with descriptive labels
-  axis(2, at = seq(0, maxY, by = (height + 0.2)), labels=chrLabels, las=1, cex.axis=0.7)
+  axis(2, at = seq(0, maxY - (height + 0.2), by = (height + 0.2)), labels=rev(chrLabels), las=1, cex.axis=0.7)
 }
 
 draw_chr_row <- function(h, p, starts, ends, color){
@@ -456,50 +478,6 @@ plot_all_chr_rows_len(length_chr, sd_positions_merged, "blue")
 
 ###############################################################################
 ##########################  MERGED BAR PLOT  ##################################
-###############################################################################
-
-
-# Assuming your dataframe is called sd_data_filtered
-total_length2 <- sd_data_filtered %>%
-  group_by(V1) %>%
-  summarise(
-    Total_Length_Intra = sum(mean_length[same_chromosome == TRUE], na.rm = TRUE),
-    Total_Length_Inter = sum(mean_length[same_chromosome == FALSE], na.rm = TRUE)
-  )
-
-
-total_length2 <- total_length2 %>%
-  mutate(total = Total_Length_Intra + Total_Length_Inter)
-
-
-
-# Assuming total_length is your dataframe and it's structured as previously described
-total_length2 <- total_length2 %>%
-  pivot_longer(cols = c("Total_Length_Intra", "Total_Length_Inter"), 
-               names_to = "Type", 
-               values_to = "Length")
-
-# Put it in numeris order
-numeric_part <- as.numeric(sub("chr", "", total_length2$V1))
-ordered_indices <- order(numeric_part)
-total_length2 <- total_length2[ordered_indices, ]
-total_length2$V1 <- factor(total_length2$V1, levels = unique(total_length2$V1))
-
-
-
-# Now plotting
-ggplot(total_length2, aes(x = V1, y = Length, fill = Type)) + 
-  geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = c("Total_Length_Intra" = "blue", "Total_Length_Inter" = "orange")) +
-  labs(title = "Total Length of SDs by Chromosome",
-       x = "Chromosome",
-       y = "Total Length",
-       fill = "Segment Type") +
-  theme_minimal()
-
-
-### This is not good 
-
 #############################################################################
 # FILTER DATA BY INTRA AND INTER
 
@@ -538,15 +516,6 @@ sd_positions_intra <- sd_positions_intra %>%
 write.table(sd_positions_intra, "sd_positions_intra.bed",
             sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
 
-################ MERGE WITH BEDTOOLS ##################
-#Install bedtools in your conda env 
-#bedtools merge -i sd_positions_intra.bed > sd_positions_intra_merged.bed
-
-#upload the data in R
-sd_intra <- read.table('sd_positions_intra_merged.bed', header = FALSE, sep = "\t")
-
-sd_intra <- sd_intra %>%
-  mutate(V4 = V3 - V2)
 
 
 #####################################################
@@ -588,41 +557,60 @@ sd_positions_inter <- sd_positions_inter %>%
 write.table(sd_positions_inter, "sd_positions_inter.bed",
             sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
 
+
 ################ MERGE WITH BEDTOOLS ##################
 #Install bedtools in your conda env 
+
+#merge sds that overlap 
+#bedtools merge -i sd_positions_intra.bed > sd_positions_intra_merged.bed
 #bedtools merge -i sd_positions_inter.bed > sd_positions_inter_merged.bed
 
-#upload the data in R
-sd_inter <- read.table('sd_positions_inter_merged.bed', header = FALSE, sep = "\t")
+#find SDs that are present in both your intrachromosomal and interchromosomal merged datasets. These are your mixed cases
+#bedtools intersect -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > mixed_sd_cases.bed
+
+#find SDs in the intrachromosomal dataset that do not overlap with the interchromosomal dataset.
+#bedtools intersect -v -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > pure_intra_cases.bed
+
+#find SDs in the interchromosomal dataset that do not overlap with the intrachromosomal dataset.
+#bedtools intersect -v -a sd_positions_inter_merged.bed -b sd_positions_intra_merged.bed > pure_inter_cases.bed
+
+#########################################################################
+
+#upload the intra data in R
+sd_intra <- read.table('pure_intra_cases.bed', header = FALSE, sep = "\t")
+
+sd_intra <- sd_intra %>%
+  mutate(V4 = V3 - V2)
+
+#upload the inter data in R
+sd_inter <- read.table('pure_inter_cases.bed', header = FALSE, sep = "\t")
 
 sd_inter <- sd_inter %>%
   mutate(V4 = V3 - V2)
 
+#upload mixed data in R
+sd_mixed <- read.table('mixed_sd_cases.bed', header = FALSE, sep = "\t")
+sd_mixed <- sd_mixed %>%
+  mutate(V4 = V3 - V2)
 
-##################################################
+#################################################
 #Prepare the data for plotting 
 
-total_length <- sd_intra %>%
-  group_by(V1) %>%
-  summarise(Total_Length_Intra = sum(V4, na.rm = TRUE)) %>%
-  full_join(sd_inter %>%
-              group_by(V1) %>%
-              summarise(Total_Length_Inter = sum(V4, na.rm = TRUE)),
-            by = "V1")
+# Combine all steps into a single pipeline
+total_length <- bind_rows(
+  sd_intra %>% mutate(Type = "Intra"),
+  sd_inter %>% mutate(Type = "Inter"),
+  sd_mixed %>% mutate(Type = "Intersection")
+) %>%
+  group_by(V1, Type) %>%
+  summarise(Total_Length = sum(V4, na.rm = TRUE), .groups = "drop") %>%
+  ungroup() %>%
+  mutate(V1 = factor(V1, levels = unique(V1))) %>%
+  arrange(V1, Type)
 
 
-total_length <- total_length %>%
-  mutate(total =  Total_Length_Intra + Total_Length_Inter)
 
-
-
-# Assuming total_length is your dataframe and it's structured as previously described
-total_length <- total_length %>%
-  pivot_longer(cols = c("Total_Length_Intra", "Total_Length_Inter"), 
-               names_to = "Type", 
-               values_to = "Length")
-
-# Put it in numeris order
+# Put it in numeric order
 numeric_part <- as.numeric(sub("chr", "", total_length$V1))
 ordered_indices <- order(numeric_part)
 total_length <- total_length[ordered_indices, ]
@@ -630,15 +618,97 @@ total_length$V1 <- factor(total_length$V1, levels = unique(total_length$V1))
 
 
 
-# Now plotting
-ggplot(total_length, aes(x = V1, y = Length, fill = Type)) + 
+# Plot
+ggplot(total_length, aes(x = V1, y = Total_Length, fill = Type)) +
   geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = c("Total_Length_Intra" = "blue", "Total_Length_Inter" = "orange")) +
-  labs(title = "Total Length of SDs by Chromosome Merged",
+  scale_fill_manual(values = c("Intra" = "blue", "Intersection" = "chartreuse3", "Inter" = "orange")) +
+  labs(title = "Total Length of SDs by Chromosome",
        x = "Chromosome",
        y = "Total Length",
-       fill = "Segment Type") +
+       fill = "SD Category") +
   theme_minimal()
 
 
+
+
+
+
+
+
+
+#################################################################################
+############## CORRECTED CHROMOSOME PLOT ########################################
+#################################################################################
+
+
+# Combine into one dataframe and add a 'Type' column
+combined_sd_df <- bind_rows(
+  sd_intra %>% mutate(Type = "Intra"),
+  sd_inter %>% mutate(Type = "Inter"),
+  sd_mixed %>% mutate(Type = "Mixed")
+)
+
+# Now you can use your combined_sd_df with the function
+
+combined_sd_df <- combined_sd_df %>%
+  rename(Chr = V1, st = V2, end = V3)
+
+
+#Create function and plot 
+plot_all_chr_rows_len <- function(lenDF, regDF){
+  height <- 0.6
+  maxY <- length(lenDF$Chr) * (height + 0.2) # Adjust spacing
+  maxChrLength <- max(lenDF$Length) # Find the maximum chromosome length
+  
+  # Adjust plot to reflect chromosome lengths properly
+  plot(c(1:10), c(1:10), axes=F, xlab="", ylab="", ylim=c(0, maxY), xlim=c(0, maxChrLength), col=NA)
+  
+  for(c in 1:length(lenDF$Chr)){
+    chrName <- lenDF$Chr[c]
+    pos <- maxY - (c * (height + 0.2)) # Adjust for spacing
+    chromosomeLength <- lenDF$Length[c]
+    
+    # Filter regDF for the current chromosome
+    currentRegDF <- regDF[regDF$Chr == chrName,]
+    
+    # Draw the chromosome and the SDs
+    draw_chr_row(height, pos, chromosomeLength, currentRegDF)
+    polygon(c(0, chromosomeLength, chromosomeLength, 0), c(pos-height/2, pos-height/2, pos+height/2, pos+height/2), col=NA, border="black")
+  }
+  
+  # Create descriptive labels for each chromosome
+  chrLabels <- lenDF$Chr
+  
+  # Add y-axis with descriptive labels
+  axis(2, at = seq(0, maxY - (height + 0.2), by = (height + 0.2)), labels=rev(chrLabels), las=1, cex.axis=0.7)
+
+}
+
+draw_chr_row <- function(h, p, chromosomeLength, regDF){
+  for(r in 1:nrow(regDF)){
+    sts <- regDF$st[r] / chromosomeLength * chromosomeLength
+    ends <- regDF$end[r] / chromosomeLength * chromosomeLength
+    type <- regDF$Type[r]
+    
+    # Assign color based on the type
+    color <- ifelse(type == "Intra", "blue", ifelse(type == "Inter", "orange", "chartreuse3"))
+    
+    polygon(c(sts, ends, ends, sts), c(p-h/2, p-h/2, p+h/2, p+h/2), col=color, border=NA)
+  }
+}
+
+plot_all_chr_rows_len(length_chr, combined_sd_df)
+# Add a legend to the plot
+
+legend("bottomright",            # Position of the legend
+       legend = c("Intra", "Inter", "Intersection"),  # Labels for the legend
+       fill = c("blue", "orange", "chartreuse3"), # Colors corresponding to the labels
+       title = "SD Types",    # Title for the legend
+       cex = 0.8,             # Character expansion factor for the legend text
+       bg = 'white')          # Background color of the legend box
+
+
+
+
+######################################################################################
 
