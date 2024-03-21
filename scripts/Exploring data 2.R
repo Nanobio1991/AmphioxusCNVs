@@ -712,3 +712,110 @@ legend("bottomright",            # Position of the legend
 
 ######################################################################################
 
+
+######################################################################################
+# COMPLETE THE GRAPH WITH THE REPEAT REGIONS 
+######################################################################
+#ON BASH : 
+
+# EXTRACT POSITION FILES FOR TRF MASKED REGIONS
+
+#grep -v "^$" Branchiostoma_lanceolatum.BraLan3_genome.fa.masked.2.7.7.80.10.50.15.dat | awk '/Sequence:/ {chromosome=$2} {print chromosome, $1, $2}' > repeats_info.txt
+#tail -n +6 repeats_info.txt | grep -v "Sequence" | grep -v "Parameters" |grep -v "scaf" > repeats_trf.txt
+
+repeats_trf <- read.table('/home/nanobio/AmphioxusCNVs/AmphioxusCNVs/repeats_trf.txt', header = FALSE, sep = " ")
+
+#EXTRACT POSITIONS FOR THE REPEATMASKER MASKED REGIONS
+
+#awk '{if (NR > 1) print $5, $6, $7}' Branchiostoma_lanceolatum.BraLan3_genome.fa.masked.2.7.7.80.10.50.15.mask.out | tail -n +3 | grep -v "scaf" > repeats_repeatmasker.txt
+
+#when uploading data that doesn't have collumns just put sep " " 
+repeats_repeatmasker <- read.table('/home/nanobio/AmphioxusCNVs/AmphioxusCNVs/results/mask_genome_with_repeatmasker2/repeats_repeatmasker.txt', header = FALSE, sep = " ")
+
+
+
+
+#################################################################################
+############## CORRECTED CHROMOSOME PLOT 2 ########################################
+#################################################################################
+
+
+# Combine into one dataframe and add a 'Type' column
+combined_sd_df2 <- bind_rows(
+  sd_intra %>% mutate(Type = "Intra"),
+  sd_inter %>% mutate(Type = "Inter"),
+  sd_mixed %>% mutate(Type = "Mixed"),
+  repeats_repeatmasker %>% mutate(Type = "repeatmasker"),
+  repeats_trf %>% mutate(Type = "trf")
+)
+
+# Now you can use your combined_sd_df with the function
+
+combined_sd_df2 <- combined_sd_df2 %>%
+  rename(Chr = V1, st = V2, end = V3)
+
+
+#Create function and plot 
+plot_all_chr_rows_len <- function(lenDF, regDF){
+  height <- 0.6
+  maxY <- length(lenDF$Chr) * (height + 0.2) # Adjust spacing
+  maxChrLength <- max(lenDF$Length) # Find the maximum chromosome length
+  
+  # Adjust plot to reflect chromosome lengths properly
+  plot(c(1:10), c(1:10), axes=F, xlab="", ylab="", ylim=c(0, maxY), xlim=c(0, maxChrLength), col=NA)
+  
+  for(c in 1:length(lenDF$Chr)){
+    chrName <- lenDF$Chr[c]
+    pos <- maxY - (c * (height + 0.2)) # Adjust for spacing
+    chromosomeLength <- lenDF$Length[c]
+    
+    # Filter regDF for the current chromosome
+    currentRegDF <- regDF[regDF$Chr == chrName,]
+    
+    # Draw the chromosome and the SDs
+    draw_chr_row(height, pos, chromosomeLength, currentRegDF)
+    polygon(c(0, chromosomeLength, chromosomeLength, 0), c(pos-height/2, pos-height/2, pos+height/2, pos+height/2), col=NA, border="black")
+  }
+  
+  # Create descriptive labels for each chromosome
+  chrLabels <- lenDF$Chr
+  
+  # Add y-axis with descriptive labels
+  axis(2, at = seq(0, maxY - (height + 0.2), by = (height + 0.2)), labels=rev(chrLabels), las=1, cex.axis=0.7)
+  
+}
+
+draw_chr_row <- function(h, p, chromosomeLength, regDF){
+  for(r in 1:nrow(regDF)){
+    sts <- regDF$st[r] / chromosomeLength * chromosomeLength
+    ends <- regDF$end[r] / chromosomeLength * chromosomeLength
+    type <- regDF$Type[r]
+    
+    # Assign color based on the type
+    color <- ifelse(type == "Intra", "blue", 
+                    ifelse(type == "Inter", "orange", 
+                           ifelse(type == "Mixed", "chartreuse3",
+                                  ifelse(type == "trf", "red", "red"))))
+    
+    polygon(c(sts, ends, ends, sts), c(p-h/2, p-h/2, p+h/2, p+h/2), col=color, border=NA)
+  }
+}
+
+
+plot_all_chr_rows_len(length_chr, combined_sd_df2)
+# Add a legend to the plot
+
+legend("bottomright",            # Position of the legend
+       legend = c("Intra", "Inter", "Intersection", "Repeats"),  # Labels for the legend
+       fill = c("blue", "orange", "chartreuse3", "red"), # Colors corresponding to the labels
+       title = "SD Types",    # Title for the legend
+       cex = 0.8,             # Character expansion factor for the legend text
+       bg = 'white')          # Background color of the legend box
+
+
+
+
+
+
+
+
