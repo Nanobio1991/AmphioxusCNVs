@@ -5,7 +5,7 @@ rule mask_tandem_repeats_with_trf:
 	input:
 		amphioxus_genome = "data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
 	output :
-		genome_trf = "Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask" 
+		genome_trf = "resuts/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask" 
 	log:
 		err = "logs/mask_tandem_repeats_with_trf/trf.err",
 		out = "logs/mask_tandem_repeats_with_trf/trf.out"
@@ -17,7 +17,13 @@ rule mask_tandem_repeats_with_trf:
 		threads = 2,
 		mem = 20000,
 	shell:
-		"trf {input.amphioxus_genome} 2 7 7 80 10 50 15 -l 10 -h -m > {log.out} 2> {log.err}"
+		"""
+		pwd=$(pwd)
+		cd $(dirname {output.genome_trf})
+		trf ${{pwd}}/{input.amphioxus_genome} 2 7 7 80 10 50 15 -l 10 -h -m > ${{pwd}}/{log.out} 2> ${{pwd}}/{log.err}
+		cd ${{pwd}}
+		
+		"""
 
 	'''
 	Mask repeats in the genome using RepeatMasker
@@ -43,7 +49,7 @@ rule mask_genome_with_repeatmasker:
 
 
 	'''
-	Replace lower bases with "N"
+	Replace lower case bases with "N"
 	'''
 
 rule replace_bases_with_N:
