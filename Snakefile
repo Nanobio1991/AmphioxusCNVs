@@ -19,6 +19,7 @@ rule mask_tandem_repeats_with_trf:
 	shell:
 		"""
 		pwd=$(pwd)
+		mkdir -p $(dirname {output.genome_trf})
 		cd $(dirname {output.genome_trf})
 		trf ${{pwd}}/{input.amphioxus_genome} 2 7 7 80 10 50 15 -l 10 -h -m > ${{pwd}}/{log.out} 2> ${{pwd}}/{log.err}
 		cd ${{pwd}}
