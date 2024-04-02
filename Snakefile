@@ -6,6 +6,7 @@ rule mask_tandem_repeats_with_trf:
 		amphioxus_genome = "data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
 	output :
 		genome_trf = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask",
+		trf_repeats = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.dat"
 	log:
 		err = "logs/mask_tandem_repeats_with_trf/trf.err",
 		out = "logs/mask_tandem_repeats_with_trf/trf.out"
@@ -18,6 +19,7 @@ rule mask_tandem_repeats_with_trf:
 		mem = 20000,
 	shell:
 		"""
+		set +euo pipefail
 		pwd=$(pwd)
 		cd $(dirname {output.genome_trf})
 		trf ${{pwd}}/{input.amphioxus_genome} 2 7 7 80 10 50 15 -l 10 -h -m > ${{pwd}}/{log.out} 2> ${{pwd}}/{log.err}
