@@ -3,8 +3,6 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - libtiff=4.4.0
-  - htslib=1.19.1
   - repeatmasker=4.1.5
   - trf=4.09.1
   - python=3.9.18
