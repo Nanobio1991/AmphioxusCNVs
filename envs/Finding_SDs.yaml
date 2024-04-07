@@ -8,6 +8,11 @@ dependencies:
   - python=3.9.18
   - samtools
   - r-base
+  - r-dplyr
+  - r-ggplot2
+  - r-tidyr
+  - r-readr
+  - r-stringr
   - bedtools=2.31.1
   - pip
   - pip:
