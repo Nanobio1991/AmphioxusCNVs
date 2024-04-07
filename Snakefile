@@ -6,7 +6,8 @@ rule mask_tandem_repeats_with_trf:
 		amphioxus_genome = "data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
 	output :
 		genome_trf = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask",
-		trf_repeats = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.dat"
+		dat_file = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.dat",
+		trf_repeats = "results/mask_tandem_repeats_with_trf/repeats_trf.txt"
 	log:
 		err = "logs/mask_tandem_repeats_with_trf/trf.err",
 		out = "logs/mask_tandem_repeats_with_trf/trf.out"
@@ -23,8 +24,12 @@ rule mask_tandem_repeats_with_trf:
 		pwd=$(pwd)
 		cd $(dirname {output.genome_trf})
 		trf ${{pwd}}/{input.amphioxus_genome} 2 7 7 80 10 50 15 -l 10 -h -m > ${{pwd}}/{log.out} 2> ${{pwd}}/{log.err}
+		grep -v "^$" Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.dat | awk '/Sequence:/ {{chromosome=$2}} {{print chromosome, $1, $2}}' > repeats_info.txt
+		tail -n +6 repeats_info.txt | grep -v "Sequence" | grep -v "Parameters" |grep -v "scaf" > repeats_trf.txt
 		cd ${{pwd}}
 		"""
+
+
 
 	'''
 	Mask repeats in the genome using RepeatMasker
@@ -33,7 +38,9 @@ rule mask_genome_with_repeatmasker:
 	input:
 		genome_trf = rules.mask_tandem_repeats_with_trf.output.genome_trf
 	output:
-		masked_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask.masked"
+		masked_genome = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask.masked",
+		repeatmasker_out = "results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask.out",
+		repeatmasker_repeats = "results/mask_genome_with_repeatmasker/repeats_repeatmasker.txt"
 	log:
 		err = "logs/mask_genome_with_repeatmasker/RepeatMasker.err",
 		out = "logs/mask_genome_with_repeatmasker/RepeatMasker.out"
@@ -46,7 +53,10 @@ rule mask_genome_with_repeatmasker:
 		mem = 20000,
 		name = "RepeatMasker",
 	shell:
-		"RepeatMasker -s -xsmall -e ncbi {input.genome_trf} -dir $(dirname {output.masked_genome}) > {log.out} 2> {log.err}"
+		"""
+		RepeatMasker -s -xsmall -e ncbi {input.genome_trf} -dir $(dirname {output.masked_genome}) > {log.out} 2> {log.err}
+		awk '{{if (NR > 1) print $5, $6, $7}}' results/mask_genome_with_repeatmasker/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask.out | tail -n +3 | grep -v "scaf" > results/mask_genome_with_repeatmasker/repeats_repeatmasker.txt
+		"""
 
 
 	'''
@@ -114,3 +124,79 @@ rule finding_SDs:
 		name = "Biser"		
 	shell:
 		"biser -o {output.SDs} -t {params.threads} --gc-heap 1G --hard {input.maskedN_genome} > {log.out} 2> {log.err}"
+
+
+	'''
+	Making directories
+	'''
+rule make_directories:
+	shell:
+		"""
+		mkdir -p results/filtered_sd_data
+		mkdir -p results/plots
+		"""
+
+
+	'''
+	Filtering with R 
+	'''
+rule filter_sd_for_bedtools:
+	input:
+		SDs = "path/to/finding_SDs/output/SDs.bed"
+	output:
+		sorted_bed="results/filtered_sd_data/sd_positions_sorted.bed",
+		intra_bed="results/filtered_sd_data/sd_positions_intra.bed",
+		inter_bed="results/filtered_sd_data/sd_positions_inter.bed",
+		length_plot = "results/plots/Histogram_of_filtered_SD_length.pdf"
+	conda:
+		"envs/Finding_SDs.yaml"
+	script:
+		"scripts/Filtering_SDs.R"
+
+
+	'''
+	Merge with bedtools
+	'''
+rule merge_with_bedtools:
+	input:
+		sorted_bed = rules.filter_sd_for_bedtools.output.sorted_bed,
+		intra_bed = rules.filter_sd_for_bedtools.output.intra_bed,
+		inter_bed = rules.filter_sd_for_bedtools.output.inter_bed
+	output:
+		mixed_cases="results/filtered_sd_data/mixed_sd_cases.bed",
+		pure_intra="results/filtered_sd_data/pure_intra_cases.bed",
+		pure_inter="results/filtered_sd_data/pure_inter_cases.bed",
+		merged_bed="results/filtered_sd_data/sd_positions_merged.bed",
+	conda:
+		"envs/Finding_SDs.yaml"
+	shell:
+		"""
+		bedtools merge -i {input.intra_bed} > sd_positions_intra_merged.bed
+		bedtools merge -i {input.inter_bed} > sd_positions_inter_merged.bed
+		bedtools intersect -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > {output.mixed_cases}
+		bedtools intersect -v -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > {pure_intra}
+		bedtools intersect -v -a sd_positions_inter_merged.bed -b sd_positions_intra_merged.bed > {pure_inter}
+		bedtools merge -i {input.sorted_bed} > {merged_bed}
+		"""
+
+
+	'''
+	Plot with R 
+	'''
+rule plot_SDs:
+	input:
+		mixed_cases= rules.merge_with_bedtools.output.mixed_cases,
+		pure_intra= rules.merge_with_bedtools.output.pure_intra,
+		pure_inter= rules.merge_with_bedtools.output.pure_inter,
+		merged_bed= rules.merge_with_bedtools.output.merged_bed
+	output:
+		sd_bar_plot="results/plots/sd_bar_plot.pdf",
+		sd_chr_plot1="results/plots/sd_chr_plot1.pdf",
+		sd_chr_plot2="results/plots/sd_chr_plot2.pdf",
+		sd_chr_plot3="results/plots/sd_chr_plot3.pdf"
+
+	conda:
+		"envs/Finding_SDs.yaml"
+	script:
+		"scripts/Plot_SDs.R"
+
