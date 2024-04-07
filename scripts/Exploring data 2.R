@@ -97,24 +97,27 @@ hist(sd_data$mean_length, breaks = 10000, xlim = c(0, 3000), main = "Raw data SD
 #Histogram of length of filtered data
 hist(sd_data_filtered$mean_length, breaks = 3000, xlim = c(0, 3000), main = "Filtered SD length")
 
+# Add histogram for 'same_chromosome == FALSE' with a different color
+hist(sd_data_filtered$mean_length[sd_data_filtered$same_chromosome == FALSE], 
+     breaks = 3000, 
+     xlim = c(0, 3000),
+     ylim = c(0, 75000),
+     col = "orange", 
+     main = "Filtered SD length - Same Chromosome",
+     xlab = "bp")
+
 
 # Create a histogram with two colors based on the 'same_chromosome' column
 hist(sd_data_filtered$mean_length[sd_data_filtered$same_chromosome == TRUE], 
      breaks = 5000, 
      xlim = c(0, 3000),
      ylim = c(0, 80000),
-     col = "blue", 
-     main = "Filtered SD length - Same Chromosome",
-     xlab = "bp")
-
-
-# Add histogram for 'same_chromosome == FALSE' with a different color
-hist(sd_data_filtered$mean_length[sd_data_filtered$same_chromosome == FALSE], 
-     breaks = 3000, 
-     xlim = c(0, 3000),
-     ylim = c(0, 75000),
-     col = rgb(1, 0.5, 0, 0.5), 
+     col = "blue",
      add = TRUE)
+
+
+
+
 
 # Add legend
 legend("topright", legend = c("Same Chromosome", "Different Chromosome"), fill = c("blue", "orange"))
@@ -321,6 +324,8 @@ ggplot(sd_counts_per_chr2, aes(x = Chr, y = percent_intra)) +
 
 # the length of the totaol SDs of chromosome 1 by the total length of chromosome 1 
 
+sd_positions_merged <- sd_positions_merged %>%
+  rename(st = V2, end = V3)
 
 sd_positions_merged$length_copy <- sd_positions_merged$end - sd_positions_merged$st
 
@@ -654,6 +659,13 @@ combined_sd_df <- combined_sd_df %>%
   rename(Chr = V1, st = V2, end = V3)
 
 
+# Put it in numeric order
+numeric_part <- as.numeric(sub("chr", "", combined_sd_df$Chr))
+ordered_indices <- order(numeric_part)
+combined_sd_df <- combined_sd_df[ordered_indices, ]
+combined_sd_df$Chr <- factor(combined_sd_df$Chr, levels = unique(combined_sd_df$Chr))
+
+
 #Create function and plot 
 plot_all_chr_rows_len <- function(lenDF, regDF){
   height <- 0.6
@@ -730,7 +742,7 @@ repeats_trf <- read.table('/home/nanobio/AmphioxusCNVs/AmphioxusCNVs/repeats_trf
 #awk '{if (NR > 1) print $5, $6, $7}' Branchiostoma_lanceolatum.BraLan3_genome.fa.masked.2.7.7.80.10.50.15.mask.out | tail -n +3 | grep -v "scaf" > repeats_repeatmasker.txt
 
 #when uploading data that doesn't have collumns just put sep " " 
-repeats_repeatmasker <- read.table('/home/nanobio/AmphioxusCNVs/AmphioxusCNVs/results/mask_genome_with_repeatmasker2/repeats_repeatmasker.txt', header = FALSE, sep = " ")
+repeats_repeatmasker <- read.table('repeats_repeatmasker.txt', header = FALSE, sep = " ")
 
 
 
