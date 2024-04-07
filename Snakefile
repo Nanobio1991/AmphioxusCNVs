@@ -176,7 +176,7 @@ rule merge_with_bedtools:
 		bedtools intersect -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > {output.mixed_cases}
 		bedtools intersect -v -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > {output.pure_intra}
 		bedtools intersect -v -a sd_positions_inter_merged.bed -b sd_positions_intra_merged.bed > {output.pure_inter}
-		bedtools merge -i {input.sorted_bed} > {merged_bed}
+		bedtools merge -i {input.sorted_bed} > {output.merged_bed}
 		"""
 
 
