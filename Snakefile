@@ -142,7 +142,7 @@ rule make_directories:
 	'''
 rule filter_sd_for_bedtools:
 	input:
-		SDs = "path/to/finding_SDs/output/SDs.bed"
+		SDs = rules.finding_SDs.output.SDs
 	output:
 		sorted_bed="results/filtered_sd_data/sd_positions_sorted.bed",
 		intra_bed="results/filtered_sd_data/sd_positions_intra.bed",
