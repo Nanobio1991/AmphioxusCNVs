@@ -1,6 +1,4 @@
 
-setwd("//wsl.localhost/Ubuntu/home/nanobio/AmphioxusCNVs/AmphioxusCNVs/")
-
 
 #Libraries 
 library(dplyr)
