@@ -188,7 +188,9 @@ rule plot_SDs:
 		mixed_cases= rules.merge_with_bedtools.output.mixed_cases,
 		pure_intra= rules.merge_with_bedtools.output.pure_intra,
 		pure_inter= rules.merge_with_bedtools.output.pure_inter,
-		merged_bed= rules.merge_with_bedtools.output.merged_bed
+		merged_bed= rules.merge_with_bedtools.output.merged_bed,
+		trf_repeats= rules.mask_tandem_repeats_with_trf.output.trf_repeats,
+		repeatmasker_repeats= rules.mask_genome_with_repeatmasker.output.repeatmasker_repeats
 	output:
 		sd_bar_plot="results/plots/sd_bar_plot.pdf",
 		sd_chr_plot1="results/plots/sd_chr_plot1.pdf",
@@ -199,4 +201,25 @@ rule plot_SDs:
 		"envs/Finding_SDs.yaml"
 	script:
 		"scripts/Plot_SDs.R"
+
+
+
+
+rule Merge_BAMs_PerSample:
+	input:
+		lambda wildcards: expand("data/{{sample}}_{seq_machine}_sorted_markdup.bam", seq_machine=["L1_NovaSeq6000", "L2_HiSeq4000", "L2_NovaSeq6000"])
+	output:
+		"results/merged_bams/{sample}_merged.bam"
+	log:
+		"logs/merge_bams/{sample}_merge.log"
+	params:
+		samtools_params = "-f 2"  
+	shell:
+		"samtools merge -c -p {params.samtools_params} {output} {input} > {log} 2>&1"
+
+
+
+
+
+
 
