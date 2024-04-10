@@ -221,7 +221,8 @@ rule Merge_BAM_Files_PerSample:
     Merge multiple BAM files for each sample into a single BAM file.
     '''
     input:
-        bamFiles = lambda wildcards: expand("data/{sample}{combo}_sorted_markdup.bam", sample=wildcards.sample, combo=config["combos"])
+        bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", 
+                                            combo=config["combos"])
     output:
         mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
     log:
@@ -238,7 +239,7 @@ rule Merge_BAM_Files_PerSample:
         mem = 16000
     shell:
         """
-        mkdir -p results/BAM_Merging
+        mkdir -p $(dirname {output.mergedBAM})
         samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
         """
 
