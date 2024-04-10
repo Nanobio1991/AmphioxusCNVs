@@ -215,7 +215,6 @@ rule all:
 rule Merge_BAM_Files_PerSample:
     '''
     Merge multiple BAM files for each sample into a single BAM file.
-    This uses samtools merge to combine BAM files from different lanes/techniques.
     '''
     input:
         bamFiles = lambda wildcards: expand("{sample}{combo}_sorted_markdup.bam", 
@@ -237,3 +236,8 @@ rule Merge_BAM_Files_PerSample:
         mem = 16000
     shell:
         "samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}"
+
+
+
+
+
