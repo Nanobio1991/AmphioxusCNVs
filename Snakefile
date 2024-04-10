@@ -239,6 +239,7 @@ rule Merge_BAM_Files_PerSample:
         mem = 16000
     shell:
         """
+        set +euo pipefail
         mkdir -p $(dirname {output.mergedBAM})
         samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
         """
