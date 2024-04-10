@@ -204,16 +204,15 @@ rule plot_SDs:
 
 
 
-
 rule Merge_BAM_Files_PerSample:
     '''
     Merge multiple BAM files for each sample into a single BAM file.
     This uses samtools merge to combine BAM files from different lanes/techniques.
     '''
     input:
-        bamFiles = lambda wildcards: expand("{sample}{{combo}}_sorted_markdup.bam", 
+        bamFiles = lambda wildcards: expand("{sample}{combo}_sorted_markdup.bam", 
                                             sample=wildcards.sample, 
-                                            combo=["_L1_NovaSeq6000", "_L2_HiSeq4000", "_L2_NovaSeq6000"])
+                                            combo=config["combos"])
     output:
         mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
     log:

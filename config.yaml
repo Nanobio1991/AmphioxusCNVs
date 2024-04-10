@@ -14,3 +14,9 @@ samples:
     - M5D
     - M6D
     - M7D
+
+
+combos:
+  - _L1_NovaSeq6000
+  - _L2_HiSeq4000
+  - _L2_NovaSeq6000
