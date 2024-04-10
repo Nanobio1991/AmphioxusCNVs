@@ -221,7 +221,7 @@ rule Merge_BAM_Files_PerSample:
     Merge multiple BAM files for each sample into a single BAM file.
     '''
     input:
-        bamFiles = expand("{{sample}}{combo}_sorted_markdup.bam", 
+        bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", 
                                             combo=config["combos"])
     output:
         mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
