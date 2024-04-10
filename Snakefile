@@ -207,6 +207,11 @@ rule plot_SDs:
 
 configfile: "config.yaml"
 
+rule all:
+    input:
+        expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
+
+
 rule Merge_BAM_Files_PerSample:
     '''
     Merge multiple BAM files for each sample into a single BAM file.
