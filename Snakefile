@@ -213,7 +213,10 @@ rule run_all_samples:
     output:
         "test"
     shell: 
-        "echo test > {output}" 
+        """
+        mkdir -p results/BAM_Merging
+        echo test > {output}
+        """ 
 
 
 rule Merge_BAM_Files_PerSample:
