@@ -207,9 +207,13 @@ rule plot_SDs:
 
 configfile: "config.yaml"
 
-rule all:
+rule run_all_samples:
     input:
         expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
+    output:
+        "test"
+    shell: 
+        "echo test > {output}" 
 
 
 rule Merge_BAM_Files_PerSample:
@@ -217,8 +221,7 @@ rule Merge_BAM_Files_PerSample:
     Merge multiple BAM files for each sample into a single BAM file.
     '''
     input:
-        bamFiles = lambda wildcards: expand("{sample}{combo}_sorted_markdup.bam", 
-                                            sample=wildcards.sample, 
+        bamFiles = expand("{{sample}}{combo}_sorted_markdup.bam", 
                                             combo=config["combos"])
     output:
         mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
