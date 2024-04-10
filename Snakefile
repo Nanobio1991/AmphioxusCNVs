@@ -213,10 +213,7 @@ rule run_all_samples:
     output:
         "test"
     shell: 
-        """
-        mkdir -p results/BAM_Merging
-        echo test > {output}
-        """ 
+        "echo test > {output}" 
 
 
 rule Merge_BAM_Files_PerSample:
@@ -224,8 +221,7 @@ rule Merge_BAM_Files_PerSample:
     Merge multiple BAM files for each sample into a single BAM file.
     '''
     input:
-        bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", 
-                                            combo=config["combos"])
+        bamFiles = lambda wildcards: expand("data/{sample}{combo}_sorted_markdup.bam", sample=wildcards.sample, combo=config["combos"])
     output:
         mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
     log:
