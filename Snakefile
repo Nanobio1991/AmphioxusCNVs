@@ -204,6 +204,9 @@ rule plot_SDs:
 
 
 
+
+configfile: "config.yaml"
+
 rule Merge_BAM_Files_PerSample:
     '''
     Merge multiple BAM files for each sample into a single BAM file.
