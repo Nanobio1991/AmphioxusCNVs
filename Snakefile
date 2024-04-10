@@ -205,21 +205,28 @@ rule plot_SDs:
 
 
 
-rule Merge_BAMs_PerSample:
-	input:
-		lambda wildcards: expand("data/{{sample}}_{seq_machine}_sorted_markdup.bam", seq_machine=["L1_NovaSeq6000", "L2_HiSeq4000", "L2_NovaSeq6000"])
-	output:
-		"results/merged_bams/{sample}_merged.bam"
-	log:
-		"logs/merge_bams/{sample}_merge.log"
-	params:
-		samtools_params = "-f 2"  
-	shell:
-		"samtools merge -c -p {params.samtools_params} {output} {input} > {log} 2>&1"
-
-
-
-
-
-
-
+rule Merge_BAM_Files_PerSample:
+    '''
+    Merge multiple BAM files for each sample into a single BAM file.
+    This uses samtools merge to combine BAM files from different lanes/techniques.
+    '''
+    input:
+        bamFiles = lambda wildcards: expand("{sample}{{combo}}_sorted_markdup.bam", 
+                                            sample=wildcards.sample, 
+                                            combo=["_L1_NovaSeq6000", "_L2_HiSeq4000", "_L2_NovaSeq6000"])
+    output:
+        mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
+    log:
+        err = "logs/BAM_Merging/{sample}_merge.err",
+        out = "logs/BAM_Merging/{sample}_merge.out"
+    benchmark:
+        "benchmarks/BAM_Merging/{sample}_merge.txt"
+    conda:
+        "../envs/BAM_Merging.yaml"
+    params:
+        time = '02:00:00',
+        name = "MergeBAM{sample}",
+        threads = 4,
+        mem = 16000
+    shell:
+        "samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}"
