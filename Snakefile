@@ -238,7 +238,10 @@ rule Merge_BAM_Files_PerSample:
         threads = 4,
         mem = 16000
     shell:
-        "samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}"
+        """
+        mkdir $(dirname {output.mergedBAM})
+        samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
+        """
 
 
 
