@@ -231,7 +231,7 @@ rule Merge_BAM_Files_PerSample:
     benchmark:
         "benchmarks/BAM_Merging/{sample}_merge.txt"
     conda:
-        "../envs/BAM_Merging.yaml"
+        "envs/Finding_SDs.yaml"
     params:
         time = '02:00:00',
         name = "MergeBAM{sample}",
