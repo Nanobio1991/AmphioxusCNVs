@@ -245,15 +245,17 @@ rule Merge_BAM_Files_PerSample:
         """
 
 
+
 rule split_reference_genome:
     input:
         ref_genome="data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
     output:
-        ref_dir=directory("data/chromosomes/")
+        "data/chromosomes/.done"
     shell:
         """
-        mkdir -p {output.ref_dir}
-        awk '/^>/ {{if(x>0) close(out); x++; out="{output.ref_dir}/"substr($1,2)".fa"}} {{print > out}}' {input.ref_genome}
+        mkdir -p data/chromosomes/
+        awk '/^>/ {{if(x>0) close(out); x++; out="data/chromosomes/"substr($1,2)".fa"}} {{print > out}}' {input.ref_genome}
+        touch {output}
         """
 
 
