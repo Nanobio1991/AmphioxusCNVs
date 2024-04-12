@@ -273,22 +273,25 @@ rule run_all_samples_for_CNVs:
 
 rule run_cnvnator:
     input:
-        mergedBAM="results/BAM_Merging/{sample}_merged.bam"
+        bam="results/BAM_Merging/{sample}_merged.bam"
     output:
-        cnv_calls="results/CNVnator/{sample}_cnv.txt"
+        cnv_calls="results/CNVnator/{sample}_cnv_calls.txt"
+    log:
+        err="logs/CNVnator/{sample}_cnvnator.err",
+        out="logs/CNVnator/{sample}_cnvnator.out"
+    conda:
+        "envs/Finding_SDs.yaml"    
     params:
         root_file="results/CNVnator/{sample}.root",
         bin_size=100,
-        ref_genome_dir="/path/to/your/reference_genome_directory/",
-    log:
-        "logs/CNVnator/{sample}_cnvnator.log"
+        ref_genome_dir="data/chromosomes/",
     shell:
         """
-        cnvnator -root {params.root_file} -tree {input.mergedBAM} && \
-        cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} && \
-        cnvnator -root {params.root_file} -stat {params.bin_size} && \
-        cnvnator -root {params.root_file} -partition {params.bin_size} && \
-        cnvnator -root {params.root_file} -call {params.bin_size} > {output.cnv_calls} 2> {log}
+        cnvnator -root {params.root_file} -tree {input.bam} 2> {log.err} && \
+        cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} 2>> {log.err} && \
+        cnvnator -root {params.root_file} -stat {params.bin_size} 2>> {log.err} && \
+        cnvnator -root {params.root_file} -partition {params.bin_size} 2>> {log.err} && \
+        cnvnator -root {params.root_file} -call {params.bin_size} > {output.cnv_calls} 2>> {log.err}
         """
 
 
