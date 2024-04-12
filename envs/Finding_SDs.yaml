@@ -14,6 +14,7 @@ dependencies:
   - r-readr
   - r-stringr
   - bedtools=2.31.1
+  - cnvnator=0.4.1
   - pip
   - pip:
     - biser
