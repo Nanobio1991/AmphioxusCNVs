@@ -265,11 +265,12 @@ configfile: "config.yaml"
 
 rule run_all_samples_for_CNVs:
     input:
-        expand("results/CNVnator/{sample}_cnv.txt", sample=config['samples'])
+        expand("results/CNVnator/{sample}_cnv_calls.txt", sample=config['samples'])
     output:
-        "hello"
-    shell: 
-        "echo hello > {output}" 
+        touch("results/CNVnator/all_samples_processed.flag")
+    shell:
+        "echo 'All CNVnator analyses complete.' > {output}"
+
 
 rule run_cnvnator:
     input:
