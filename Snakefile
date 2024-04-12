@@ -245,6 +245,48 @@ rule Merge_BAM_Files_PerSample:
         """
 
 
+rule split_reference_genome:
+    input:
+        ref_genome="data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
+    output:
+        ref_dir=directory("data/chromosomes/")
+    shell:
+        """
+        mkdir -p {output.ref_dir}
+        awk '/^>/ {{if(x>0) close(out); x++; out="{output.ref_dir}/"substr($1,2)".fa"}} {{print > out}}' {input.ref_genome}
+        """
 
+
+
+
+configfile: "config.yaml"
+
+rule run_all_samples_for_CNVs:
+    input:
+        expand("results/CNVnator/{sample}_cnv.txt", sample=config['samples'])
+    output:
+        "hello"
+    shell: 
+        "echo hello > {output}" 
+
+rule run_cnvnator:
+    input:
+        mergedBAM="results/BAM_Merging/{sample}_merged.bam"
+    output:
+        cnv_calls="results/CNVnator/{sample}_cnv.txt"
+    params:
+        root_file="results/CNVnator/{sample}.root",
+        bin_size=100,
+        ref_genome_dir="/path/to/your/reference_genome_directory/",
+    log:
+        "logs/CNVnator/{sample}_cnvnator.log"
+    shell:
+        """
+        cnvnator -root {params.root_file} -tree {input.mergedBAM} && \
+        cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} && \
+        cnvnator -root {params.root_file} -stat {params.bin_size} && \
+        cnvnator -root {params.root_file} -partition {params.bin_size} && \
+        cnvnator -root {params.root_file} -call {params.bin_size} > {output.cnv_calls} 2> {log}
+        """
 
 
