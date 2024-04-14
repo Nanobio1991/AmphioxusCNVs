@@ -5,7 +5,7 @@ channels:
 dependencies:
   - repeatmasker=4.1.5
   - trf=4.09.1
-  - python=3.7
+  - python=3.9.18
   - samtools
   - r-base
   - r-dplyr
@@ -14,9 +14,6 @@ dependencies:
   - r-readr
   - r-stringr
   - bedtools=2.31.1
-  - cnvnator=0.4.1
-  - root=6.20
-  - readline=8.2
   - pip
   - pip:
     - biser

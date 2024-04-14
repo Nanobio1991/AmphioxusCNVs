@@ -231,7 +231,7 @@ rule Merge_BAM_Files_PerSample:
     benchmark:
         "benchmarks/BAM_Merging/{sample}_merge.txt"
     conda:
-        "envs/Finding_SDs.yaml"
+        "Detecting_CNVs.yaml"
     params:
         time = '02:00:00',
         name = "MergeBAM{sample}",
@@ -282,7 +282,7 @@ rule run_cnvnator:
         err="logs/CNVnator/{sample}_cnvnator.err",
         out="logs/CNVnator/{sample}_cnvnator.out"
     conda:
-        "envs/Finding_SDs.yaml"    
+        "envs/Detecting_CNVs.yaml"    
     params:
         root_file="results/CNVnator/{sample}.root",
         bin_size=100,
