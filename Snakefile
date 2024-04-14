@@ -289,6 +289,7 @@ rule run_cnvnator:
         ref_genome_dir="data/chromosomes/",
     shell:
         """
+        export LD_LIBRARY_PATH={conda_prefix}/lib:$LD_LIBRARY_PATH; \
         cnvnator -root {params.root_file} -tree {input.bam} 2> {log.err} && \
         cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} 2>> {log.err} && \
         cnvnator -root {params.root_file} -stat {params.bin_size} 2>> {log.err} && \
