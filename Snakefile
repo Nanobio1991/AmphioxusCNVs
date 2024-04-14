@@ -263,13 +263,14 @@ rule split_reference_genome:
 
 configfile: "config.yaml"
 
+
 rule run_all_samples_for_CNVs:
     input:
         expand("results/CNVnator/{sample}_cnv_calls.txt", sample=config['samples'])
     output:
-        touch("results/CNVnator/all_samples_processed.flag")
-    shell:
-        "echo 'All CNVnator analyses complete.' > {output}"
+        "test2"
+    shell: 
+        "echo test2 > {output}" 
 
 
 rule run_cnvnator:
