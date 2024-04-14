@@ -290,11 +290,12 @@ rule run_cnvnator:
         conda_prefix="/work/FAC/FBM/DEE/mrobinso/evolseq/aiuliano/AmphioxusCNVs/AmphioxusCNVs/.snakemake/conda/edcc0c4e",
     shell:
         """
-        export LD_LIBRARY_PATH={{{params.conda_prefix}}}/lib:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH={{params.conda_prefix}}/lib:$LD_LIBRARY_PATH; \
         cnvnator -root {params.root_file} -tree {input.bam} 2> {log.err} && \
         cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} 2>> {log.err} && \
         cnvnator -root {params.root_file} -stat {params.bin_size} 2>> {log.err} && \
         cnvnator -root {params.root_file} -partition {params.bin_size} 2>> {log.err} && \
         cnvnator -root {params.root_file} -call {params.bin_size} > {output.cnv_calls} 2>> {log.err}
         """
-        
+
+
