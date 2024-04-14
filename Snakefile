@@ -287,6 +287,7 @@ rule run_cnvnator:
         root_file="results/CNVnator/{sample}.root",
         bin_size=100,
         ref_genome_dir="data/chromosomes/",
+        conda_prefix="/work/FAC/FBM/DEE/mrobinso/evolseq/aiuliano/AmphioxusCNVs/AmphioxusCNVs/.snakemake/conda/edcc0c4e"
     shell:
         """
         export LD_LIBRARY_PATH={conda_prefix}/lib:$LD_LIBRARY_PATH; \
