@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.7
+  - python
   - samtools
   - bedtools=2.31.1
-  - cnvnator=0.4.1
-  - root=6.20
-  - readline=8.2
+  - cnvnator
+  - root
+  - readline
