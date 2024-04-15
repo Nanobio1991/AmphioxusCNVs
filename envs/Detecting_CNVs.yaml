@@ -7,5 +7,5 @@ dependencies:
   - samtools
   - bedtools=2.31.1
   - cnvnator
-  - root=6.20
+  - root
   - readline
