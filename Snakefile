@@ -254,7 +254,7 @@ rule split_reference_genome:
     shell:
         """
         mkdir -p data/chromosomes/
-        awk '/^>/ {{if(x>0) close(out); x++; out="data/chromosomes/"substr($1,2)".fa"}} {{print > out}}' {input.ref_genome}
+        cat {input.ref_genome} | awk '{if($1 ~ />/){if($1 ~ />chr/){out="data/chromosomes/"substr($1,2)".fa";x++}if(x>0){close(out)}}else{print $0 > out}}'
         touch {output}
         """
 
@@ -287,8 +287,10 @@ rule run_cnvnator:
         root_file="results/CNVnator/{sample}.root",
         bin_size=100,
         ref_genome_dir="data/chromosomes/",
+        lib_dir="/users/aiuliano/miniconda3/envs/snakemake/pkgs/root_base-6.30.4-py39h479b7f5_0/lib"
     shell:
         """
+        export LD_LIBRARY_PATH={params.lib_dir}:$LD_LIBRARY_PATH; \
         cnvnator -root {params.root_file} -tree {input.bam} 2> {log.err} && \
         cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} 2>> {log.err} && \
         cnvnator -root {params.root_file} -stat {params.bin_size} 2>> {log.err} && \
