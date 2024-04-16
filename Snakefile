@@ -298,3 +298,8 @@ rule run_cnvnator:
         cnvnator -root {params.root_file} -view {params.bin_size} > {params.plot_dir}{wildcards.sample}_cnv_plot.png
         """
 
+
+
+
+
+
