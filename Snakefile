@@ -231,7 +231,7 @@ rule Merge_BAM_Files_PerSample:
     benchmark:
         "benchmarks/BAM_Merging/{sample}_merge.txt"
     conda:
-        "Detecting_CNVs.yaml"
+        "envs/Detecting_CNVs.yaml"
     params:
         time = '02:00:00',
         name = "MergeBAM{sample}",
@@ -278,6 +278,7 @@ rule run_cnvnator:
         bam="results/BAM_Merging/{sample}_merged.bam"
     output:
         cnv_calls="results/CNVnator/{sample}_cnv_calls.txt"
+        plot="results/plots/{sample}_cnv_plot.png"
     log:
         err="logs/CNVnator/{sample}_cnvnator.err",
         out="logs/CNVnator/{sample}_cnvnator.out"
@@ -294,5 +295,6 @@ rule run_cnvnator:
         cnvnator -root {params.root_file} -stat {params.bin_size} 2>> {log.err} && \
         cnvnator -root {params.root_file} -partition {params.bin_size} 2>> {log.err} && \
         cnvnator -root {params.root_file} -call {params.bin_size} > {output.cnv_calls} 2>> {log.err}
+        cnvnator -root {params.root_file} -view {params.bin_size} > {params.plot_dir}{wildcards.sample}_cnv_plot.png
         """
 
