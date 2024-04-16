@@ -278,7 +278,7 @@ rule run_cnvnator:
         bam="results/BAM_Merging/{sample}_merged.bam"
     output:
         cnv_calls="results/CNVnator/{sample}_cnv_calls.txt"
-        plot="results/plots/{sample}_cnv_plot.png"
+        plot="results/plots2/{sample}_cnv_plot.png"
     log:
         err="logs/CNVnator/{sample}_cnvnator.err",
         out="logs/CNVnator/{sample}_cnvnator.out"
