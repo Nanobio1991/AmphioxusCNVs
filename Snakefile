@@ -4,7 +4,7 @@
 rule mask_tandem_repeats_with_trf:
 	input:
 		amphioxus_genome = "data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
-	output :
+	output:
 		genome_trf = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.mask",
 		dat_file = "results/mask_tandem_repeats_with_trf/Branchiostoma_lanceolatum.BraLan3_genome.fa.2.7.7.80.10.50.15.dat",
 		trf_repeats = "results/mask_tandem_repeats_with_trf/repeats_trf.txt"
@@ -17,7 +17,7 @@ rule mask_tandem_repeats_with_trf:
 		name = "Tandem_Repeat_Finder",
 		time = '10:00:00',
 		threads = 2,
-		mem = 20000,
+		mem = 20000
 	shell:
 		"""
 		set +euo pipefail
