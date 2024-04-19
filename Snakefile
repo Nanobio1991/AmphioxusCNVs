@@ -216,7 +216,6 @@ rule run_all_samples:
 	shell: 
 		"echo test > {output}" 
 
-
 rule Merge_BAM_Files_PerSample:
 	'''
 	Merge multiple BAM files for each sample into a single BAM file.
@@ -263,9 +262,7 @@ rule split_reference_genome:
 
 
 
-	'''
-	Call CNVs with cnvnator
-	'''
+
 configfile: "config.yaml"
 
 rule run_all_samples_for_CNVs:
@@ -277,6 +274,9 @@ rule run_all_samples_for_CNVs:
 		"echo cnvnator > {output}" 
 
 rule run_cnvnator:
+	'''
+	Call CNVs with cnvnator
+	'''
 	input:
 		bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
 		chrom_list="data/chromosomes/chrom_list.txt"
