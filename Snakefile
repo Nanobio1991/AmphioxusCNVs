@@ -169,13 +169,16 @@ rule merge_with_bedtools:
 		merged_bed="results/filtered_sd_data/sd_positions_merged.bed",
 	conda:
 		"envs/Finding_SDs.yaml"
+	params:
+		sd_positions_inter_merged="results/filtered_sd_data/sd_positions_inter_merged.bed",
+		sd_positions_intra_merged="results/filtered_sd_data/sd_positions_intra_merged.bed"
 	shell:
 		"""
-		bedtools merge -i {input.intra_bed} > sd_positions_intra_merged.bed
-		bedtools merge -i {input.inter_bed} > sd_positions_inter_merged.bed
-		bedtools intersect -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > {output.mixed_cases}
-		bedtools intersect -v -a sd_positions_intra_merged.bed -b sd_positions_inter_merged.bed > {output.pure_intra}
-		bedtools intersect -v -a sd_positions_inter_merged.bed -b sd_positions_intra_merged.bed > {output.pure_inter}
+		bedtools merge -i {input.intra_bed} > {params.sd_positions_intra_merged}
+		bedtools merge -i {input.inter_bed} > {params.sd_positions_inter_merged}
+		bedtools intersect -a {param.sd_positions_intra_merged} -b {param.sd_positions_inter_merged} > {output.mixed_cases}
+		bedtools intersect -v -a {param.sd_positions_intra_merged} -b {param.sd_positions_inter_merged} > {output.pure_intra}
+		bedtools intersect -v -a {param.sd_positions_inter_merged} -b {param.sd_positions_intra_merged} > {output.pure_inter}
 		bedtools merge -i {input.sorted_bed} > {output.merged_bed}
 		"""
 
@@ -196,7 +199,6 @@ rule plot_SDs:
 		sd_chr_plot1="results/plots/sd_chr_plot1.pdf",
 		sd_chr_plot2="results/plots/sd_chr_plot2.pdf",
 		sd_chr_plot3="results/plots/sd_chr_plot3.pdf"
-
 	conda:
 		"envs/Finding_SDs.yaml"
 	script:
@@ -204,6 +206,9 @@ rule plot_SDs:
 
 
 
+    '''
+    Merge multiple BAM files for each sample into a single BAM file.
+    '''
 
 configfile: "config.yaml"
 
@@ -211,15 +216,11 @@ rule run_all_samples:
     input:
         expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
     output:
-        "test"
+        "merge_bed"
     shell: 
-        "echo test > {output}" 
-
+        "echo merge_bed > {output}" 
 
 rule Merge_BAM_Files_PerSample:
-    '''
-    Merge multiple BAM files for each sample into a single BAM file.
-    '''
     input:
         bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", 
                                             combo=config["combos"])
@@ -246,6 +247,10 @@ rule Merge_BAM_Files_PerSample:
 
 
 
+
+    '''
+    Split reference genome into chromosomes
+    '''
 rule split_reference_genome:
     input:
         ref_genome="data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
@@ -260,22 +265,22 @@ rule split_reference_genome:
 
 
 
-
+    '''
+    Call CNVs with cnvnator
+    '''
 configfile: "config.yaml"
-
 
 rule run_all_samples_for_CNVs:
     input:
         expand("results/CNVnator/{sample}_cnv_calls.txt", sample=config['samples'])
     output:
-        "test2"
+        "cnvnator"
     shell: 
-        "echo test2 > {output}" 
-
+        "echo cnvnator > {output}" 
 
 rule run_cnvnator:
     input:
-        bam="results/BAM_Merging/{sample}_merged.bam",
+        bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
         chrom_list="data/chromosomes/chrom_list.txt"
     output:
         cnv_calls="results/CNVnator/{sample}_cnv_calls.txt"
@@ -297,6 +302,49 @@ rule run_cnvnator:
         cnvnator -root {params.root_file} -stat {params.bin_size} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err} 
         cnvnator -root {params.root_file} -partition {params.bin_size} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err}
         cnvnator -root {params.root_file} -call {params.bin_size} -chrom $(cat {input.chrom_list}) > {output.cnv_calls} 2> {log.err} 
-        cnvnator -root {params.merged_root} -merge {params.root_file} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err}        
         """
+
+
+
+	'''
+	Transform output cnvnator into bed files
+	'''
+rule transform_txt_into_bed:
+	input:
+		cnv_calls=rules.run_cnvnator.output.cnv_calls
+	output:
+		cnv_bed="results/filtering_cnv/cnv_{sample}.bed"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	script:
+		"scripts/Exploring_CNVs.R"
+
+
+
+
+	'''
+	Merge all CNV sample bed files with bedtools 
+	'''
+rule merge_cnv:
+	input:
+		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
+	output:
+		adjusted_bed="results/filtering_cnv/cnv_{sample}_adjusted.bed.bed",
+		multiinter="results/filtering_cnv/multiIntersectOutput.bed",
+		intersection_bed="results/filtering_cnv/intersect_{sample}.bed",
+		all_samples_CNVs="results/filtering_cnv/paste_all_cnv.bed"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	shell:
+		"""
+		cat {input.cnv_bed} | sort -k1,2V | awk '{if(end==$2){st=$2+1;print $1"\t"st"\t"$3"\t"$4"\t"$5}else{print $1"\t"$2"\t"$3"\t"$4"\t"$5}end=$3}' > {output.adjusted_bed}
+	bedtools multiinter -i results/filtering_cnv/cnv_F1D_adjusted.bed results/filtering_cnv/cnv_F2D_adjusted.bed results/filtering_cnv/cnv_F10D_adjusted.bed > {output.multiinter}
+		bedtools intersect -a {output.multiinter} -b {output.adjusted_bed} -wao > {output.intersection_bed}
+	paste <(cat intersect_F1D.bed | cut -f1,2,3,12,13) <(cat intersect_F2D.bed | cut -f12,13)  <(cat intersect_F10D.bed | cut -f12,13) > {output.all_samples_CNVs}
+		"""
+
+
+
+
+
 
