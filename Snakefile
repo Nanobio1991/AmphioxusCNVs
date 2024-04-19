@@ -20,7 +20,6 @@ rule mask_tandem_repeats_with_trf:
 		mem = 20000
 	shell:
 		"""
-		set +euo pipefail
 		pwd=$(pwd)
 		cd $(dirname {output.genome_trf})
 		trf ${{pwd}}/{input.amphioxus_genome} 2 7 7 80 10 50 15 -l 10 -h -m > ${{pwd}}/{log.out} 2> ${{pwd}}/{log.err}
@@ -214,7 +213,8 @@ configfile: "config.yaml"
 
 rule run_all_samples:
 	input:
-		expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
+		expand("results/BAM_Merging/{sample}_merged.bam", 
+			sample=config['samples'])
 	output:
 		"merge_bed"
 	shell: 
@@ -239,7 +239,6 @@ rule Merge_BAM_Files_PerSample:
 		mem = 16000
 	shell:
 		"""
-		set +euo pipefail
 		mkdir -p $(dirname {output.mergedBAM})
 		samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
 		"""
