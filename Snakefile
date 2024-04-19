@@ -247,62 +247,62 @@ rule Merge_BAM_Files_PerSample:
 
 
 
-    '''
-    Split reference genome into chromosomes
-    '''
+	'''
+	Split reference genome into chromosomes
+	'''
 rule split_reference_genome:
-    input:
-        ref_genome="data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
-    output:
-        "data/chromosomes/.done"
-    shell:
-        """
-        mkdir -p data/chromosomes/
-        cat {input.ref_genome} | awk '{if($1 ~ />/){if($1 ~ />chr/){out="data/chromosomes/"substr($1,2)".fa";x++}if(x>0){close(out)}}else{print $0 > out}}'
-        touch {output}
-        """
+	input:
+		ref_genome="data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
+	output:
+		"data/chromosomes/.done"
+	shell:
+		"""
+		mkdir -p data/chromosomes/
+		cat {input.ref_genome} | awk '{if($1 ~ />/){if($1 ~ />chr/){out="data/chromosomes/"substr($1,2)".fa";x++}if(x>0){close(out)}}else{print $0 > out}}'
+		touch {output}
+		"""
 
 
 
 
-    '''
-    Call CNVs with cnvnator
-    '''
+	'''
+	Call CNVs with cnvnator
+	'''
 configfile: "config.yaml"
 
 rule run_all_samples_for_CNVs:
-    input:
-        expand("results/CNVnator/{sample}_cnv_calls.txt", sample=config['samples'])
-    output:
-        "cnvnator"
-    shell: 
-        "echo cnvnator > {output}" 
+	input:
+		expand("results/CNVnator/{sample}_cnv_calls.txt", sample=config['samples'])
+	output:
+		"cnvnator"
+	shell: 
+		"echo cnvnator > {output}" 
 
 rule run_cnvnator:
-    input:
-        bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
-        chrom_list="data/chromosomes/chrom_list.txt"
-    output:
-        cnv_calls="results/CNVnator/{sample}_cnv_calls.txt"
-    log:
-        err="logs/CNVnator/{sample}_cnvnator.err",
-        out="logs/CNVnator/{sample}_cnvnator.out"
-    conda:
-        "envs/Detecting_CNVs.yaml"
-    params:
-        root_file="results/CNVnator/{sample}.root",
-        merged_root="results/CNVnator/all_samples.root",
-        final_merged_root="results/CNVnator/merged_samples.root",
-        bin_size=100,
-        ref_genome_dir="data/chromosomes/"
-    shell:
-        """
-        cnvnator -root {params.root_file} -tree {input.bam} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err} 
-        cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err} 
-        cnvnator -root {params.root_file} -stat {params.bin_size} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err} 
-        cnvnator -root {params.root_file} -partition {params.bin_size} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err}
-        cnvnator -root {params.root_file} -call {params.bin_size} -chrom $(cat {input.chrom_list}) > {output.cnv_calls} 2> {log.err} 
-        """
+	input:
+		bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
+		chrom_list="data/chromosomes/chrom_list.txt"
+	output:
+		cnv_calls="results/CNVnator/{sample}_cnv_calls.txt"
+	log:
+		err="logs/CNVnator/{sample}_cnvnator.err",
+		out="logs/CNVnator/{sample}_cnvnator.out"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	params:
+		root_file="results/CNVnator/{sample}.root",
+		merged_root="results/CNVnator/all_samples.root",
+		final_merged_root="results/CNVnator/merged_samples.root",
+		bin_size=100,
+		ref_genome_dir="data/chromosomes/"
+	shell:
+		"""
+		cnvnator -root {params.root_file} -tree {input.bam} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err} 
+		cnvnator -root {params.root_file} -his {params.bin_size} -d {params.ref_genome_dir} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err} 
+		cnvnator -root {params.root_file} -stat {params.bin_size} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err} 
+		cnvnator -root {params.root_file} -partition {params.bin_size} -chrom $(cat {input.chrom_list}) > {log.out} 2> {log.err}
+		cnvnator -root {params.root_file} -call {params.bin_size} -chrom $(cat {input.chrom_list}) > {output.cnv_calls} 2> {log.err} 
+		"""
 
 
 
