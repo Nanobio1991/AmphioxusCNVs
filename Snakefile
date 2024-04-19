@@ -320,26 +320,7 @@ rule transform_txt_into_bed:
 
 
 
-	'''
-	Merge all CNV sample bed files with bedtools 
-	'''
-rule merge_cnv:
-	input:
-		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
-	output:
-		adjusted_bed="results/filtering_cnv/cnv_{sample}_adjusted.bed.bed",
-		multiinter="results/filtering_cnv/multiIntersectOutput.bed",
-		intersection_bed="results/filtering_cnv/intersect_{sample}.bed",
-		all_samples_CNVs="results/filtering_cnv/paste_all_cnv.bed"
-	conda:
-		"envs/Detecting_CNVs.yaml"
-	shell:
-		"""
-		cat {input.cnv_bed} | sort -k1,2V | awk '{if(end==$2){st=$2+1;print $1"\t"st"\t"$3"\t"$4"\t"$5}else{print $1"\t"$2"\t"$3"\t"$4"\t"$5}end=$3}' > {output.adjusted_bed}
-	bedtools multiinter -i results/filtering_cnv/cnv_F1D_adjusted.bed results/filtering_cnv/cnv_F2D_adjusted.bed results/filtering_cnv/cnv_F10D_adjusted.bed > {output.multiinter}
-		bedtools intersect -a {output.multiinter} -b {output.adjusted_bed} -wao > {output.intersection_bed}
-	paste <(cat intersect_F1D.bed | cut -f1,2,3,12,13) <(cat intersect_F2D.bed | cut -f12,13)  <(cat intersect_F10D.bed | cut -f12,13) > {output.all_samples_CNVs}
-		"""
+
 
 
 
