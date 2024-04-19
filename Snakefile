@@ -20,6 +20,7 @@ rule mask_tandem_repeats_with_trf:
 		mem = 20000
 	shell:
 		"""
+		set +euo pipefail
 		pwd=$(pwd)
 		cd $(dirname {output.genome_trf})
 		trf ${{pwd}}/{input.amphioxus_genome} 2 7 7 80 10 50 15 -l 10 -h -m > ${{pwd}}/{log.out} 2> ${{pwd}}/{log.err}
@@ -205,45 +206,44 @@ rule plot_SDs:
 
 
 
-	'''
-	Merge multiple BAM files for each sample into a single BAM file.
-	'''
-
 configfile: "config.yaml"
 
 rule run_all_samples:
-	input:
-		expand("results/BAM_Merging/{sample}_merged.bam", 
-			sample=config['samples'])
-	output:
-		"merge_bed"
-	shell: 
-		"echo merge_bed > {output}" 
+    input:
+        expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
+    output:
+        "test"
+    shell: 
+        "echo test > {output}" 
+
 
 rule Merge_BAM_Files_PerSample:
-	input:
-		bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", combo=config["combos"])
-	output:
-		mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
-	log:
-		err = "logs/BAM_Merging/{sample}_merge.err",
-		out = "logs/BAM_Merging/{sample}_merge.out"
-	benchmark:
-		"benchmarks/BAM_Merging/{sample}_merge.txt"
-	conda:
-		"envs/Detecting_CNVs.yaml"
-	params:
-		time = '02:00:00',
-		name = "MergeBAM{sample}",
-		threads = 4,
-		mem = 16000
-	shell:
-		"""
-		mkdir -p $(dirname {output.mergedBAM})
-		samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
-		"""
-
-
+    '''
+    Merge multiple BAM files for each sample into a single BAM file.
+    '''
+    input:
+        bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", 
+                                            combo=config["combos"])
+    output:
+        mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
+    log:
+        err = "logs/BAM_Merging/{sample}_merge.err",
+        out = "logs/BAM_Merging/{sample}_merge.out"
+    benchmark:
+        "benchmarks/BAM_Merging/{sample}_merge.txt"
+    conda:
+        "envs/Detecting_CNVs.yaml"
+    params:
+        time = '02:00:00',
+        name = "MergeBAM{sample}",
+        threads = 4,
+        mem = 16000
+    shell:
+        """
+        set +euo pipefail
+        mkdir -p $(dirname {output.mergedBAM})
+        samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
+        """
 
 
 	'''
