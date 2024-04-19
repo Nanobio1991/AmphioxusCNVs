@@ -206,44 +206,43 @@ rule plot_SDs:
 
 
 
-    '''
-    Merge multiple BAM files for each sample into a single BAM file.
-    '''
+	'''
+	Merge multiple BAM files for each sample into a single BAM file.
+	'''
 
 configfile: "config.yaml"
 
 rule run_all_samples:
-    input:
-        expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
-    output:
-        "merge_bed"
-    shell: 
-        "echo merge_bed > {output}" 
+	input:
+		expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
+	output:
+		"merge_bed"
+	shell: 
+		"echo merge_bed > {output}" 
 
 rule Merge_BAM_Files_PerSample:
-    input:
-        bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", 
-                                            combo=config["combos"])
-    output:
-        mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
-    log:
-        err = "logs/BAM_Merging/{sample}_merge.err",
-        out = "logs/BAM_Merging/{sample}_merge.out"
-    benchmark:
-        "benchmarks/BAM_Merging/{sample}_merge.txt"
-    conda:
-        "envs/Detecting_CNVs.yaml"
-    params:
-        time = '02:00:00',
-        name = "MergeBAM{sample}",
-        threads = 4,
-        mem = 16000
-    shell:
-        """
-        set +euo pipefail
-        mkdir -p $(dirname {output.mergedBAM})
-        samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
-        """
+	input:
+		bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", combo=config["combos"])
+	output:
+		mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
+	log:
+		err = "logs/BAM_Merging/{sample}_merge.err",
+		out = "logs/BAM_Merging/{sample}_merge.out"
+	benchmark:
+		"benchmarks/BAM_Merging/{sample}_merge.txt"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	params:
+		time = '02:00:00',
+		name = "MergeBAM{sample}",
+		threads = 4,
+		mem = 16000
+	shell:
+		"""
+		set +euo pipefail
+		mkdir -p $(dirname {output.mergedBAM})
+		samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
+		"""
 
 
 
@@ -262,6 +261,7 @@ rule split_reference_genome:
         cat {input.ref_genome} | awk '{if($1 ~ />/){if($1 ~ />chr/){out="data/chromosomes/"substr($1,2)".fa";x++}if(x>0){close(out)}}else{print $0 > out}}'
         touch {output}
         """
+
 
 
 
