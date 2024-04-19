@@ -12,7 +12,7 @@ rule mask_tandem_repeats_with_trf:
 		err = "logs/mask_tandem_repeats_with_trf/trf.err",
 		out = "logs/mask_tandem_repeats_with_trf/trf.out"
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	params:
 		name = "Tandem_Repeat_Finder",
 		time = '10:00:00',
@@ -45,7 +45,7 @@ rule mask_genome_with_repeatmasker:
 		err = "logs/mask_genome_with_repeatmasker/RepeatMasker.err",
 		out = "logs/mask_genome_with_repeatmasker/RepeatMasker.out"
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	params:
 		output_dir = "results/mask_genome_with_repeatmasker/",
 		time = '10:00:00',
@@ -71,7 +71,7 @@ rule replace_bases_with_N:
 		err = "logs/replace/replace.err",
 		out = "logs/replace/replace.out"
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	params:
 		time = '01:00:00',
 		threads = 1,
@@ -93,7 +93,7 @@ rule index_genome:
 		err = "logs/index_genome/index.err",
 		out = "logs/index_genome/index.out"
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	params:
 		time = '01:00:00',
 		threads = 1,
@@ -116,7 +116,7 @@ rule finding_SDs:
 		err = "logs/finding_SDs/biser.err",
 		out = "logs/finding_SDs/biser.out"
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	params:
 		time = '10:00:00',
 		threads = 4,
@@ -149,7 +149,7 @@ rule filter_sd_for_bedtools:
 		inter_bed="results/filtered_sd_data/sd_positions_inter.bed",
 		length_plot = "results/plots/Histogram_of_filtered_SD_length.pdf"
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	script:
 		"scripts/Filtering_SDs.R"
 
@@ -168,7 +168,7 @@ rule merge_with_bedtools:
 		pure_inter="results/filtered_sd_data/pure_inter_cases.bed",
 		merged_bed="results/filtered_sd_data/sd_positions_merged.bed",
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	shell:
 		"""
 		bedtools merge -i {input.intra_bed} > sd_positions_intra_merged.bed
@@ -198,7 +198,7 @@ rule plot_SDs:
 		sd_chr_plot3="results/plots/sd_chr_plot3.pdf"
 
 	conda:
-		"../envs/Finding_SDs.yaml"
+		"envs/Finding_SDs.yaml"
 	script:
 		"scripts/Plot_SDs.R"
 
@@ -231,7 +231,7 @@ rule Merge_BAM_Files_PerSample:
     benchmark:
         "benchmarks/BAM_Merging/{sample}_merge.txt"
     conda:
-        "../envs/Detecting_CNVs.yaml"
+        "envs/Detecting_CNVs.yaml"
     params:
         time = '02:00:00',
         name = "MergeBAM{sample}",
@@ -283,7 +283,7 @@ rule run_cnvnator:
         err="logs/CNVnator/{sample}_cnvnator.err",
         out="logs/CNVnator/{sample}_cnvnator.out"
     conda:
-        "../envs/Detecting_CNVs.yaml"
+        "envs/Detecting_CNVs.yaml"
     params:
         root_file="results/CNVnator/{sample}.root",
         merged_root="results/CNVnator/all_samples.root",
