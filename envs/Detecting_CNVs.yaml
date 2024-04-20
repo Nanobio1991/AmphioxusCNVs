@@ -9,3 +9,9 @@ dependencies:
   - cnvnator=0.4
   - root=6.20
   - readline
+  - r-base
+  - r-dplyr
+  - r-ggplot2
+  - r-tidyr
+  - r-readr
+  - r-stringr
