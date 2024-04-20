@@ -348,18 +348,19 @@ rule filtering_cnv:
 		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
 	output:
 		adjusted_bed="results/filtering_cnv/cnv_{sample}_adjusted.bed.bed",
-		multiinter="results/filtering_cnv/multiIntersectOutput.bed",
-		intersection_bed="results/filtering_cnv/intersect_{sample}.bed",
-		all_samples_CNVs="results/filtering_cnv/paste_all_cnv.bed"
+		intersection_bed="results/filtering_cnv/intersect_{sample}.bed"
 	log:
 		err="logs/filtering_cnv/{sample}_merging.err",
 		out="logs/filtering_cnv/{sample}_merging.out"
 	conda:
 		"envs/Detecting_CNVs.yaml"
+	params:
+		multiinter="results/filtering_cnv/multiIntersectOutput.bed",
+		all_samples_CNVs="results/filtering_cnv/paste_all_cnv.bed"
 	shell:
 		"""
 		cat {input.cnv_bed} | sort -k1,2V | awk '{if(end==$2){st=$2+1;print $1"\t"st"\t"$3"\t"$4"\t"$5}else{print $1"\t"$2"\t"$3"\t"$4"\t"$5}end=$3}' > {output.adjusted_bed}
-		bedtools multiinter -i results/filtering_cnv/cnv_F1D_adjusted.bed.bed results/filtering_cnv/cnv_F2D_adjusted.bed.bed results/filtering_cnv/cnv_F3D_adjusted.bed.bed results/filtering_cnv/cnv_F4D_adjusted.bed.bed results/filtering_cnv/cnv_F6D_adjusted.bed.bed results/filtering_cnv/cnv_F7D_adjusted.bed.bed results/filtering_cnv/cnv_F8D_adjusted.bed.bed results/filtering_cnv/cnv_F9D_adjusted.bed.bed results/filtering_cnv/cnv_F10D_adjusted.bed.bed results/filtering_cnv/cnv_M2D_adjusted.bed.bed results/filtering_cnv/cnv_M3D_adjusted.bed.bed results/filtering_cnv/cnv_M4D_adjusted.bed.bed results/filtering_cnv/cnv_M5D_adjusted.bed.bed results/filtering_cnv/cnv_M6D_adjusted.bed.bed results/filtering_cnv/cnv_M7D_adjusted.bed.bed results/filtering_cnv/cnv_M8D_adjusted.bed.bed results/filtering_cnv/cnv_M9D_adjusted.bed.bed results/filtering_cnv/cnv_RF1D_adjusted.bed.bed results/filtering_cnv/cnv_RF2D_adjusted.bed.bed results/filtering_cnv/cnv_RF3D_adjusted.bed.bed results/filtering_cnv/cnv_RF4D_adjusted.bed.bed results/filtering_cnv/cnv_RF5D_adjusted.bed.bed results/filtering_cnv/cnv_RF6D_adjusted.bed.bed results/filtering_cnv/cnv_RF7D_adjusted.bed.bed results/filtering_cnv/cnv_RF8D_adjusted.bed.bed results/filtering_cnv/cnv_RF10D_adjusted.bed.bed results/filtering_cnv/cnv_RM1D_adjusted.bed.bed results/filtering_cnv/cnv_RM2D_adjusted.bed.bed results/filtering_cnv/cnv_RM3D_adjusted.bed.bed results/filtering_cnv/cnv_RM4D_adjusted.bed.bed results/filtering_cnv/cnv_RM5D_adjusted.bed.bed results/filtering_cnv/cnv_RM6D_adjusted.bed.bed v results/filtering_cnv/cnv_RM7D_adjusted.bed.bed results/filtering_cnv/cnv_RM8D_adjusted.bed.bed results/filtering_cnv/cnv_RU5D_adjusted.bed.bed > {output.multiinter}
+		bedtools multiinter -i results/filtering_cnv/cnv_F1D_adjusted.bed.bed results/filtering_cnv/cnv_F2D_adjusted.bed.bed results/filtering_cnv/cnv_F3D_adjusted.bed.bed results/filtering_cnv/cnv_F4D_adjusted.bed.bed results/filtering_cnv/cnv_F6D_adjusted.bed.bed results/filtering_cnv/cnv_F7D_adjusted.bed.bed results/filtering_cnv/cnv_F8D_adjusted.bed.bed results/filtering_cnv/cnv_F9D_adjusted.bed.bed results/filtering_cnv/cnv_F10D_adjusted.bed.bed results/filtering_cnv/cnv_M2D_adjusted.bed.bed results/filtering_cnv/cnv_M3D_adjusted.bed.bed results/filtering_cnv/cnv_M4D_adjusted.bed.bed results/filtering_cnv/cnv_M5D_adjusted.bed.bed results/filtering_cnv/cnv_M6D_adjusted.bed.bed results/filtering_cnv/cnv_M7D_adjusted.bed.bed results/filtering_cnv/cnv_M8D_adjusted.bed.bed results/filtering_cnv/cnv_M9D_adjusted.bed.bed results/filtering_cnv/cnv_RF1D_adjusted.bed.bed results/filtering_cnv/cnv_RF2D_adjusted.bed.bed results/filtering_cnv/cnv_RF3D_adjusted.bed.bed results/filtering_cnv/cnv_RF4D_adjusted.bed.bed results/filtering_cnv/cnv_RF5D_adjusted.bed.bed results/filtering_cnv/cnv_RF6D_adjusted.bed.bed results/filtering_cnv/cnv_RF7D_adjusted.bed.bed results/filtering_cnv/cnv_RF8D_adjusted.bed.bed results/filtering_cnv/cnv_RF10D_adjusted.bed.bed results/filtering_cnv/cnv_RM1D_adjusted.bed.bed results/filtering_cnv/cnv_RM2D_adjusted.bed.bed results/filtering_cnv/cnv_RM3D_adjusted.bed.bed results/filtering_cnv/cnv_RM4D_adjusted.bed.bed results/filtering_cnv/cnv_RM5D_adjusted.bed.bed results/filtering_cnv/cnv_RM6D_adjusted.bed.bed v results/filtering_cnv/cnv_RM7D_adjusted.bed.bed results/filtering_cnv/cnv_RM8D_adjusted.bed.bed results/filtering_cnv/cnv_RU5D_adjusted.bed.bed > {params.multiinter}
 		bedtools intersect -a {output.multiinter} -b {output.adjusted_bed} -wao > {output.intersection_bed}
 		paste <(cat intersect_F1D.bed | cut -f1,2,3,12,13) \
 		<(cat intersect_F2D.bed | cut -f12,13) \
@@ -395,7 +396,7 @@ rule filtering_cnv:
 		<(cat intersect_RM6D.bed | cut -f12,13) \
 		<(cat intersect_RM7D.bed | cut -f12,13) \
 		<(cat intersect_RM8D.bed | cut -f12,13) \
-		<(cat intersect_RU5D.bed | cut -f12,13) > {output.all_samples_CNVs}
+		<(cat intersect_RU5D.bed | cut -f12,13) > {params.all_samples_CNVs}
 		"""
 
 
