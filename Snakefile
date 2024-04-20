@@ -351,6 +351,9 @@ rule merge_cnv:
 		multiinter="results/filtering_cnv/multiIntersectOutput.bed",
 		intersection_bed="results/filtering_cnv/intersect_{sample}.bed",
 		all_samples_CNVs="results/filtering_cnv/paste_all_cnv.bed"
+	log:
+		err="logs/merge_cnv/{sample}_merging.err",
+		out="logs/merge_cnv/{sample}_merging.out"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	shell:
