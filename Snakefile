@@ -320,6 +320,62 @@ rule transform_txt_into_bed:
 
 
 
+	'''
+	Merge all CNV sample bed files with bedtools 
+	'''
+rule merge_cnv:
+	input:
+		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
+	output:
+		adjusted_bed="results/filtering_cnv/cnv_{sample}_adjusted.bed.bed",
+		multiinter="results/filtering_cnv/multiIntersectOutput.bed",
+		intersection_bed="results/filtering_cnv/intersect_{sample}.bed",
+		all_samples_CNVs="results/filtering_cnv/paste_all_cnv.bed"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	shell:
+		"""
+		cat {input.cnv_bed} | sort -k1,2V | awk '{if(end==$2){st=$2+1;print $1"\t"st"\t"$3"\t"$4"\t"$5}else{print $1"\t"$2"\t"$3"\t"$4"\t"$5}end=$3}' > {output.adjusted_bed}
+		bedtools multiinter -i {{' '.join(output.adjusted_bed)}} > {output.multiinter}
+		bedtools intersect -a {output.multiinter} -b {output.adjusted_bed} -wao > {output.intersection_bed}
+		paste <(cat intersect_F1D.bed | cut -f1,2,3,12,13) \
+		<(cat intersect_F2D.bed | cut -f12,13) \
+		<(cat intersect_F3D.bed | cut -f12,13) \
+		<(cat intersect_F4D.bed | cut -f12,13) \
+		<(cat intersect_F6D.bed | cut -f12,13) \
+		<(cat intersect_F7D.bed | cut -f12,13) \
+		<(cat intersect_F8D.bed | cut -f12,13) \
+		<(cat intersect_F9D.bed | cut -f12,13) \
+		<(cat intersect_F10D.bed | cut -f12,13) \
+		<(cat intersect_M2D.bed | cut -f12,13) \
+		<(cat intersect_M3D.bed | cut -f12,13) \
+		<(cat intersect_M4D.bed | cut -f12,13) \
+		<(cat intersect_M5D.bed | cut -f12,13) \
+		<(cat intersect_M6D.bed | cut -f12,13) \
+		<(cat intersect_M7D.bed | cut -f12,13) \
+		<(cat intersect_M8D.bed | cut -f12,13) \
+		<(cat intersect_M9D.bed | cut -f12,13) \
+		<(cat intersect_RF1D.bed | cut -f12,13) \
+		<(cat intersect_RF2D.bed | cut -f12,13) \
+		<(cat intersect_RF3D.bed | cut -f12,13) \
+		<(cat intersect_RF4D.bed | cut -f12,13) \
+		<(cat intersect_RF5D.bed | cut -f12,13) \
+		<(cat intersect_RF6D.bed | cut -f12,13) \
+		<(cat intersect_RF7D.bed | cut -f12,13) \
+		<(cat intersect_RF8D.bed | cut -f12,13) \
+		<(cat intersect_RF10D.bed | cut -f12,13) \
+		<(cat intersect_RM1D.bed | cut -f12,13) \
+		<(cat intersect_RM2D.bed | cut -f12,13) \
+		<(cat intersect_RM3D.bed | cut -f12,13) \
+		<(cat intersect_RM4D.bed | cut -f12,13) \
+		<(cat intersect_RM5D.bed | cut -f12,13) \
+		<(cat intersect_RM6D.bed | cut -f12,13) \
+		<(cat intersect_RM7D.bed | cut -f12,13) \
+		<(cat intersect_RM8D.bed | cut -f12,13) \
+		<(cat intersect_RU5D.bed | cut -f12,13) > {output.all_samples_CNVs}
+		"""
+
+
 
 
 
