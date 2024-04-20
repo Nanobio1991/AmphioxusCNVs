@@ -304,6 +304,16 @@ rule run_cnvnator:
 
 
 
+configfile: "config.yaml"
+
+rule all_samples_transform_txt_into_bed:
+	input:
+		expand("results/filtering_cnv/cnv_{sample}.bed", sample=config['samples'])
+	output:
+		"rtrans"
+	shell: 
+		"echo rtrans > {output}" 
+
 	'''
 	Transform output cnvnator into bed files
 	'''
@@ -319,6 +329,16 @@ rule transform_txt_into_bed:
 
 
 
+
+configfile: "config.yaml"
+
+rule all_samples_merge_cnv:
+	input:
+		expand("results/filtering_cnv/paste_all_cnv.bed", sample=config['samples'])
+	output:
+		"merge"
+	shell: 
+		"echo merge > {output}" 
 
 	'''
 	Merge all CNV sample bed files with bedtools 
