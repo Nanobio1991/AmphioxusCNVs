@@ -319,9 +319,9 @@ rule all_samples_transform_txt_into_bed:
 	'''
 rule transform_txt_into_bed:
 	input:
-		expand("results/CNVnator/{sample}_cnv_calls.txt", sample=config['samples'])
+		cnv_calls=rules.run_cnvnator.output.cnv_calls
 	output:
-		expand("results/filtering_cnv/cnv_{sample}.bed", sample=config['samples'])
+		cnv_bed="results/filtering_cnv/cnv_{sample}.bed"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	script:
@@ -345,7 +345,7 @@ rule all_samples_merge_cnv:
 	'''
 rule filtering_cnv:
 	input:
-		cnv_bed="results/filtering_cnv/cnv_{sample}.bed"
+		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
 	output:
 		adjusted_bed="results/filtering_cnv/cnv_{sample}_adjusted.bed.bed",
 		intersection_bed="results/filtering_cnv/intersect_{sample}.bed"
