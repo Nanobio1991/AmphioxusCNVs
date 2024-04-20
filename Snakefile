@@ -318,8 +318,10 @@ rule all_samples_transform_txt_into_bed:
 	Transform output cnvnator into bed files
 	'''
 rule transform_txt_into_bed:
+	input:
+		expand("results/CNVnator/{sample}_cnv_calls.txt", sample=config['samples'])
 	output:
-		cnv_bed="results/filtering_cnv/cnv_{sample}.bed"
+		expand("results/filtering_cnv/cnv_{sample}.bed", sample=config['samples'])
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	script:
