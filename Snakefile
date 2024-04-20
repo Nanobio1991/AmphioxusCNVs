@@ -318,8 +318,6 @@ rule all_samples_transform_txt_into_bed:
 	Transform output cnvnator into bed files
 	'''
 rule transform_txt_into_bed:
-	input:
-		cnv_calls=rules.run_cnvnator.output.cnv_calls
 	output:
 		cnv_bed="results/filtering_cnv/cnv_{sample}.bed"
 	conda:
