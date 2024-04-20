@@ -345,7 +345,7 @@ rule all_samples_merge_cnv:
 	'''
 rule filtering_cnv:
 	input:
-		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
+		cnv_bed="results/filtering_cnv/cnv_{sample}.bed"
 	output:
 		adjusted_bed="results/filtering_cnv/cnv_{sample}_adjusted.bed.bed",
 		intersection_bed="results/filtering_cnv/intersect_{sample}.bed"
