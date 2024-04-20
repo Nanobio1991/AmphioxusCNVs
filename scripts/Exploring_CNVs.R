@@ -1,5 +1,5 @@
 # Set working directory
-setwd("//wsl.localhost/Ubuntu/home/nanobio/AmphioxusCNVs/AmphioxusCNVs")
+#setwd("//wsl.localhost/Ubuntu/home/nanobio/AmphioxusCNVs/AmphioxusCNVs")
 
 # Libraries 
 library(dplyr)
