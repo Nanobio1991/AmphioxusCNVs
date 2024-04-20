@@ -334,7 +334,7 @@ configfile: "config.yaml"
 
 rule all_samples_merge_cnv:
 	input:
-		expand("results/filtering_cnv/paste_all_cnv.bed", sample=config['samples'])
+		expand("results/filtering_cnv/intersect_{sample}.bed", sample=config['samples'])
 	output:
 		"merge"
 	shell: 
@@ -343,7 +343,7 @@ rule all_samples_merge_cnv:
 	'''
 	Merge all CNV sample bed files with bedtools 
 	'''
-rule merge_cnv:
+rule filtering_cnv:
 	input:
 		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
 	output:
@@ -352,8 +352,8 @@ rule merge_cnv:
 		intersection_bed="results/filtering_cnv/intersect_{sample}.bed",
 		all_samples_CNVs="results/filtering_cnv/paste_all_cnv.bed"
 	log:
-		err="logs/merge_cnv/{sample}_merging.err",
-		out="logs/merge_cnv/{sample}_merging.out"
+		err="logs/filtering_cnv/{sample}_merging.err",
+		out="logs/filtering_cnv/{sample}_merging.out"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	shell:
