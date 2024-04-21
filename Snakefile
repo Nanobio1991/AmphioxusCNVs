@@ -236,6 +236,8 @@ rule Merge_BAM_Files_PerSample:
 	log:
 		err = "logs/BAM_Merging/{sample}_merge.err",
 		out = "logs/BAM_Merging/{sample}_merge.out"
+	benchmark:
+		"benchmarks/BAM_Merging/{sample}_merge.txt"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	params:
@@ -245,7 +247,7 @@ rule Merge_BAM_Files_PerSample:
 		mem = 16000
 	shell:
 		"""
-		set +euo pipefail
+		set +euo pipefail		
 		mkdir -p $(dirname {output.mergedBAM})
 		samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
 		"""
