@@ -421,7 +421,41 @@ rule all_samples_merge_cnv:
 	'''
 rule filtering_cnv:
 	input:
-		cnv_bed=rules.transform_txt_into_bed.output.cnv_bed
+		cnv_bedF1D="results/filtering_cnv/cnv_F1D.bed",
+		cnv_bedF2D="results/filtering_cnv/cnv_F2D.bed",
+		cnv_bedF3D="results/filtering_cnv/cnv_F3D.bed",
+		cnv_bedF4D="results/filtering_cnv/cnv_F4D.bed",
+		cnv_bedF6D="results/filtering_cnv/cnv_F6D.bed",
+		cnv_bedF7D="results/filtering_cnv/cnv_F7D.bed",
+		cnv_bedF8D="results/filtering_cnv/cnv_F8D.bed",
+		cnv_bedF9D="results/filtering_cnv/cnv_F9D.bed",
+		cnv_bedF10D="results/filtering_cnv/cnv_F10D.bed",
+		cnv_bedM2D="results/filtering_cnv/cnv_M2D.bed",
+		cnv_bedM3D="results/filtering_cnv/cnv_M3D.bed",
+		cnv_bedM4D="results/filtering_cnv/cnv_M4D.bed",
+		cnv_bedM5D="results/filtering_cnv/cnv_M5D.bed",
+		cnv_bedM6D="results/filtering_cnv/cnv_M6D.bed",
+		cnv_bedM7D="results/filtering_cnv/cnv_M7D.bed",
+		cnv_bedM8D="results/filtering_cnv/cnv_M8D.bed",
+		cnv_bedM9D="results/filtering_cnv/cnv_M9D.bed",
+		cnv_bedRF1D="results/filtering_cnv/cnv_RF1D.bed",
+		cnv_bedRF2D="results/filtering_cnv/cnv_RF2D.bed",
+		cnv_bedRF3D="results/filtering_cnv/cnv_RF3D.bed",
+		cnv_bedRF4D="results/filtering_cnv/cnv_RF4D.bed",
+		cnv_bedRF5D="results/filtering_cnv/cnv_RF5D.bed",
+		cnv_bedRF6D="results/filtering_cnv/cnv_RF6D.bed",
+		cnv_bedRF7D="results/filtering_cnv/cnv_RF7D.bed",
+		cnv_bedRF8D="results/filtering_cnv/cnv_RF8D.bed",
+		cnv_bedRF10D="results/filtering_cnv/cnv_RF10D.bed",
+		cnv_bedRM1D="results/filtering_cnv/cnv_RM1D.bed",
+		cnv_bedRM2D="results/filtering_cnv/cnv_RM2D.bed",
+		cnv_bedRM3D="results/filtering_cnv/cnv_RM3D.bed",
+		cnv_bedRM4D="results/filtering_cnv/cnv_RM4D.bed",
+		cnv_bedRM5D="results/filtering_cnv/cnv_RM5D.bed",
+		cnv_bedRM6D="results/filtering_cnv/cnv_RM6D.bed",
+		cnv_bedRM7D="results/filtering_cnv/cnv_RM7D.bed",
+		cnv_bedRM8D="results/filtering_cnv/cnv_RM8D.bed",
+		cnv_bedRU5D="results/filtering_cnv/cnv_RU5D.bed"
 	output:
 		adjusted_bed="results/filtering_cnv/cnv_{sample}_adjusted.bed.bed",
 		intersection_bed="results/filtering_cnv/intersect_{sample}.bed"
