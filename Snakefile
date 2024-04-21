@@ -319,7 +319,41 @@ rule all_samples_transform_txt_into_bed:
 	'''
 rule transform_txt_into_bed:
 	input:
-		cnv_calls=rules.run_cnvnator.output.cnv_calls
+		cnv_callsF1D="results/CNVnator/F1D_cnv_calls.txt",
+		cnv_callsF2D="results/CNVnator/F2D_cnv_calls.txt",
+		cnv_callsF3D="results/CNVnator/F3D_cnv_calls.txt",
+		cnv_callsF4D="results/CNVnator/F4D_cnv_calls.txt",
+		cnv_callsF6D="results/CNVnator/F6D_cnv_calls.txt",
+		cnv_callsF7D="results/CNVnator/F7D_cnv_calls.txt",
+		cnv_callsF8D="results/CNVnator/F8D_cnv_calls.txt",
+		cnv_callsF9D="results/CNVnator/F9D_cnv_calls.txt",
+		cnv_callsF10D="results/CNVnator/F10D_cnv_calls.txt",
+		cnv_callsM2D="results/CNVnator/M2D_cnv_calls.txt",
+		cnv_callsM3D="results/CNVnator/M3D_cnv_calls.txt",
+		cnv_callsM4D="results/CNVnator/M4D_cnv_calls.txt",
+		cnv_callsM5D="results/CNVnator/M5D_cnv_calls.txt",
+		cnv_callsM6D="results/CNVnator/M6D_cnv_calls.txt",
+		cnv_callsM7D="results/CNVnator/M7D_cnv_calls.txt",
+		cnv_callsM8D="results/CNVnator/M8D_cnv_calls.txt",
+		cnv_callsM9D="results/CNVnator/M9D_cnv_calls.txt",
+		cnv_callsRF1D="results/CNVnator/RF1D_cnv_calls.txt",
+		cnv_callsRF2D="results/CNVnator/RF2D_cnv_calls.txt",
+		cnv_callsRF3D="results/CNVnator/RF3D_cnv_calls.txt",
+		cnv_callsRF4D="results/CNVnator/RF4D_cnv_calls.txt",
+		cnv_callsRF5D="results/CNVnator/RF5D_cnv_calls.txt",
+		cnv_callsRF6D="results/CNVnator/RF6D_cnv_calls.txt",
+		cnv_callsRF7D="results/CNVnator/RF7D_cnv_calls.txt",
+		cnv_callsRF8D="results/CNVnator/RF8D_cnv_calls.txt",
+		cnv_callsRF10D="results/CNVnator/RF10D_cnv_calls.txt",
+		cnv_callsRM1D="results/CNVnator/RM1D_cnv_calls.txt",
+		cnv_callsRM2D="results/CNVnator/RM2D_cnv_calls.txt",
+		cnv_callsRM3D="results/CNVnator/RM3D_cnv_calls.txt",
+		cnv_callsRM4D="results/CNVnator/RM4D_cnv_calls.txt",
+		cnv_callsRM5D="results/CNVnator/RM5D_cnv_calls.txt",
+		cnv_callsRM6D="results/CNVnator/RM6D_cnv_calls.txt",
+		cnv_callsRM7D="results/CNVnator/RM7D_cnv_calls.txt",
+		cnv_callsRM8D="results/CNVnator/RM8D_cnv_calls.txt",
+		cnv_callsRU5D="results/CNVnator/RU5D_cnv_calls.txt"
 	output:
 		cnv_bed="results/filtering_cnv/cnv_{sample}.bed"
 	conda:
