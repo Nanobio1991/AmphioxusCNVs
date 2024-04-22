@@ -268,8 +268,8 @@ rule reference_genome_clean:
     	awk 'BEGIN {{p=1}} /^>/'{{'{{if (\$0 ~ /scaf/) p=0; if (p) print \$0;}}'}}' {input.amphioxus_genome} > {output.amphioxus_genome_cleaned}
 		samtools faidx {output.amphioxus_genome_cleaned}
 		echo 'from collections import OrderedDict' > {output.configfile_ref}
-		echo 'import_reference_genomes = {{' >> {output.configfile_ref}
-		echo '    "Branchiostoma": {{' >> {output.configfile_ref}
+		echo 'import_reference_genomes = {' >> {output.configfile_ref}
+		echo '    "Branchiostoma": {' >> {output.configfile_ref}
 		echo '        "name": "BraLan3",' >> {output.configfile_ref}
 		echo '        "species": "Branchiostoma lanceolatum",' >> {output.configfile_ref}
 		echo '        "chromosomes": OrderedDict([' >> {output.configfile_ref}
@@ -293,10 +293,9 @@ rule reference_genome_clean:
 		echo '            ("chr18", (17113871, "A")),' >> {output.configfile_ref}
 		echo '            ("chr19", (15322015, "A"))' >> {output.configfile_ref}
 		echo '        ]),' >> {output.configfile_ref}
-		echo '        "gc_file": "",' >> {output.configfile_ref}
-		echo '        "mask_file": "results/CNVpytor/BraLan3_gc.pytor"' >> {output.configfile_ref}
-		echo '    }}' >> {output.configfile_ref}
-		echo '}}' >> {output.configfile_ref}
+		echo '        "gc_file": "results/CNVpytor/BraLan3_gc.pytor"' >> {output.configfile_ref}
+		echo '    }' >> {output.configfile_ref}
+		echo '}' >> {output.configfile_ref}
 		"""
 
 
