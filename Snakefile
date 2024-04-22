@@ -317,7 +317,7 @@ rule run_cnvpytor:
 	input:
 		bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
 		configfile_ref=rules.reference_genome_clean.output.configfile_ref,
-		amphioxus_genome_cleaned=rules.reference_genome_clean.output.amphioxus_genome
+		amphioxus_genome_cleaned=rules.reference_genome_clean.output.amphioxus_genome_cleaned
 	output:
 		cnv_calls="results/CNVpytor/{sample}_cnv_calls.tsv"
 	log:
