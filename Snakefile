@@ -257,6 +257,7 @@ rule reference_genome_clean:
 		amphioxus_genome = "data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
 	output:
 		amphioxus_genome_cleaned = "data/Cleaned_Branchiostoma_lanceolatum.BraLan3_genome.fa",
+		configfile_ref="results/CNVpytor/BraLan3_conf.py",
 	log:
 		err = "logs/clean_reference_genome/cleaning.err",
 		out = "logs/clean_reference_genome/cleaning.out"
