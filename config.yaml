@@ -33,6 +33,7 @@ samples:
     - RM6D
     - RM7D
     - RM8D
+    - RM10D
     - RU5D
 
 
@@ -42,3 +43,4 @@ combos:
   - _L1_NovaSeq6000
   - _L2_HiSeq4000
   - _L2_NovaSeq6000
+
