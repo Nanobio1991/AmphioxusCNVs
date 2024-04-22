@@ -316,8 +316,8 @@ rule run_cnvpytor:
 	'''
 	input:
 		bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
-		configfile_ref="results/CNVpytor/BraLan3_conf.py",
-		amphioxus_genome_cleaned = "data/Cleaned_Branchiostoma_lanceolatum.BraLan3_genome.fa",
+		configfile_ref=rules.reference_genome_clean.output.configfile_ref,
+		amphioxus_genome_cleaned =rules.reference_genome_clean.output.amphioxus_genome
 	output:
 		cnv_calls="results/CNVpytor/{sample}_cnv_calls.tsv"
 	log:
