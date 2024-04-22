@@ -324,7 +324,7 @@ rule run_cnvpytor:
 		err="logs/CNVpytor/{sample}_cnvpytor.err",
 		out="logs/CNVpytor/{sample}_cnvpytor.out"
 	conda:
-		"envs/Detecting_CNVs.yaml"
+		"envs/Cnvpytor_env.yaml"
 	params:
 		pytor_file="results/CNVpytor/{sample}.pytor",
 		gc_ref="results/CNVpytor/BraLan3_gc.pytor",
