@@ -5,9 +5,3 @@ channels:
 dependencies:
   - python
   - cnvpytor
-  - readline
-  - pysam
-  - scipy
-  - matplotlib
-  - h5py
-
