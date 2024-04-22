@@ -265,7 +265,7 @@ rule reference_genome_clean:
 		"envs/Detecting_CNVs.yaml",
 	shell:
 		"""
-		awk 'BEGIN {{p=1}} /^>/'{{'{if (\\$0 ~ /scaf/) p=0; if (p) print \\$0;}'}}' {input} > {output.amphioxus_genome_cleaned}
+		awk 'BEGIN {{p=1}} /^>/'{{'{if ($0 ~ /scaf/) p=0; if (p) print $0;}'}}' {input.amphioxus_genome} > {output.amphioxus_genome_cleaned}
 		samtools faidx {output.amphioxus_genome_cleaned}
 		echo 'from collections import OrderedDict' > {output.configfile_ref}
 		echo 'import_reference_genomes = {{' >> {output.configfile_ref}
