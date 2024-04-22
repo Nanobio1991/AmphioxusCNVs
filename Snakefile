@@ -208,43 +208,97 @@ rule plot_SDs:
 
 
 
-
-
 configfile: "config.yaml"
 
 rule run_all_samples:
-	input:
-		expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
-	output:
-		"test"
-	shell: 
-		"echo test > {output}" 
+    input:
+        expand("results/BAM_Merging/{sample}_merged.bam", sample=config['samples'])
+    output:
+        "test"
+    shell: 
+        "echo test > {output}" 
+
 
 rule Merge_BAM_Files_PerSample:
+    '''
+    Merge multiple BAM files for each sample into a single BAM file.
+    '''
+    input:
+        bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", 
+                                            combo=config["combos"])
+    output:
+        mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
+    log:
+        err = "logs/BAM_Merging/{sample}_merge.err",
+        out = "logs/BAM_Merging/{sample}_merge.out"
+    benchmark:
+        "benchmarks/BAM_Merging/{sample}_merge.txt"
+    conda:
+        "envs/Detecting_CNVs.yaml"
+    params:
+        time = '02:00:00',
+        name = "MergeBAM{sample}",
+        threads = 4,
+        mem = 16000
+    shell:
+        """
+        mkdir -p $(dirname {output.mergedBAM})
+        samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
+        """
+
+
+
+
+
 	'''
-	Merge multiple BAM files for each sample into a single BAM file.
+	Cleaning the reference genome
 	'''
+rule reference_genome_clean:
 	input:
-		bamFiles = expand("data/{{sample}}{combo}_sorted_markdup.bam", combo=config["combos"])
+		amphioxus_genome = "data/Branchiostoma_lanceolatum.BraLan3_genome.fa"
 	output:
-		mergedBAM = "results/BAM_Merging/{sample}_merged.bam"
+		amphioxus_genome_cleaned = "data/Cleaned_Branchiostoma_lanceolatum.BraLan3_genome.fa",
+		configfile_ref="results/CNVpytor/BraLan3_conf.py"
 	log:
-		err = "logs/BAM_Merging/{sample}_merge.err",
-		out = "logs/BAM_Merging/{sample}_merge.out"
-	benchmark:
-		"benchmarks/BAM_Merging/{sample}_merge.txt"
+		err = "logs/clean_reference_genome/cleaning.err",
+		out = "logs/clean_reference_genome/cleaning.out"
 	conda:
 		"envs/Detecting_CNVs.yaml"
-	params:
-		threads = 4,
 	shell:
 		"""
-		mkdir -p $(dirname {output.mergedBAM})
-		samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
+		awk '/^>/{p=1} /scaf/{p=0} p' {input.amphioxus_genome} > {output.amphioxus_genome_cleaned}
+		samtools faidx {output.amphioxus_genome_cleaned}
+		cat > {output.configfile_ref} <<- 'EOF'
+        from collections import OrderedDict
+        
+        import_reference_genomes = {{
+            "Branchiostoma": {{
+                "name": "BraLan3",
+                "species": "Branchiostoma lanceolatum",
+                "chromosomes": OrderedDict([
+                    ("chr1", (43860960, "A")),
+                    ("chr2", (38510819, "A")),
+                    ("chr3", (34610492, "A")),
+                    ("chr4", (31719604, "A")),
+                    ("chr5", (25701974, "A")),
+                    ("chr6", (24533633, "A")),
+                    ("chr7", (24230189, "A")),
+                    ("chr8", (23752511, "A")),
+                    ("chr9", (23231292, "A")),
+                    ("chr10", (20381850, "A")),
+                    ("chr11", (20367708, "A")),
+                    ("chr12", (19917020, "A")),
+                    ("chr13", (19776172, "A")),
+                    ("chr14", (19709165, "A")),
+                    ("chr15", (19381563, "A")),
+                    ("chr16", (18823661, "A")),
+                    ("chr17", (18214296, "A")),
+                    ("chr18", (17113871, "A")),
+                    ("chr19", (15322015, "A"))
+                ]),
+                "gc_file": "{params.gc_ref}",
+                "mask_file": ""
+            }}
+        }}
+        EOF
 		"""
-
-
-
-
-
-
