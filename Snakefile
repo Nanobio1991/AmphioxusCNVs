@@ -262,7 +262,7 @@ rule reference_genome_clean:
 		err = "logs/clean_reference_genome/cleaning.err",
 		out = "logs/clean_reference_genome/cleaning.out"
 	conda:
-		"envs/Detecting_CNVs.yaml"
+		"envs/Detecting_CNVs.yaml",
 	shell:
 		"""
         awk 'BEGIN {{p=1}} /^>/'{{'if ($0 ~ /scaf/) p=0; if (p) print $0;'}}' {input.amphioxus_genome} > {output.amphioxus_genome_cleaned}
@@ -295,8 +295,8 @@ rule reference_genome_clean:
 					("chr18", (17113871, "A")),
 					("chr19", (15322015, "A"))
 				]),
-				"gc_file": "{params.gc_ref}",
-				"mask_file": ""
+				"gc_file": "",
+				"mask_file": "results/CNVpytor/BraLan3_gc.pytor"
 			}}
 		}}
 		EOF
@@ -307,37 +307,37 @@ rule reference_genome_clean:
 configfile: "config.yaml"
 
 rule run_all_samples_for_CNVs_pytor:
-    input:
-        expand("results/CNVpytor/{sample}_cnv_calls.tsv", sample=config['samples'])
-    output:
-        "cnvpytor"
-    shell: 
-        "echo cnvpytor > {output}" 
+	input:
+		expand("results/CNVpytor/{sample}_cnv_calls.tsv", sample=config['samples'])
+	output:
+		"cnvpytor"
+	shell: 
+		"echo cnvpytor > {output}" 
 
 rule run_cnvpytor:
-    '''
-    Call CNVs with cnvpytor
-    '''
-    input:
-        bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
-        configfile_ref="results/CNVpytor/BraLan3_conf.py",
-        amphioxus_genome_cleaned = "data/Cleaned_Branchiostoma_lanceolatum.BraLan3_genome.fa",
-    output:
-        cnv_calls="results/CNVpytor/{sample}_cnv_calls.tsv"
-    log:
-        err="logs/CNVpytor/{sample}_cnvpytor.err",
-        out="logs/CNVpytor/{sample}_cnvpytor.out"
-    conda:
-        "envs/Detecting_CNVs.yaml"
-    params:
-        pytor_file="results/CNVpytor/{sample}.pytor",
-        gc_ref="results/CNVpytor/BraLan3_gc.pytor",
-        bin_size=1000
-    shell:
-        """
-        cnvpytor -root {params.gc_ref} -gc {params.amphioxus_genome_cleaned} -make_gc_file
-        cnvpytor -root {params.pytor_file} -rd {input.bam} -chrom chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -conf input.configfile_ref} > {log.out} 2> {log.err} 
-        cnvpytor -root {params.pytor_file} -his {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err} 
-        cnvpytor -root {params.pytor_file} -partition {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
-        cnvpytor -root {params.pytor_file} -call {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
-        """
+	'''
+	Call CNVs with cnvpytor
+	'''
+	input:
+		bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
+		configfile_ref="results/CNVpytor/BraLan3_conf.py",
+		amphioxus_genome_cleaned = "data/Cleaned_Branchiostoma_lanceolatum.BraLan3_genome.fa",
+	output:
+		cnv_calls="results/CNVpytor/{sample}_cnv_calls.tsv"
+	log:
+		err="logs/CNVpytor/{sample}_cnvpytor.err",
+		out="logs/CNVpytor/{sample}_cnvpytor.out"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	params:
+		pytor_file="results/CNVpytor/{sample}.pytor",
+		gc_ref="results/CNVpytor/BraLan3_gc.pytor",
+		bin_size=1000
+	shell:
+		"""
+		cnvpytor -root {params.gc_ref} -gc {params.amphioxus_genome_cleaned} -make_gc_file
+		cnvpytor -root {params.pytor_file} -rd {input.bam} -chrom chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -conf input.configfile_ref} > {log.out} 2> {log.err} 
+		cnvpytor -root {params.pytor_file} -his {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err} 
+		cnvpytor -root {params.pytor_file} -partition {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
+		cnvpytor -root {params.pytor_file} -call {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
+		"""
