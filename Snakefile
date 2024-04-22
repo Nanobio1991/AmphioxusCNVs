@@ -210,11 +210,6 @@ rule plot_SDs:
 
 
 
-
-
-
-
-
 configfile: "config.yaml"
 
 rule run_all_samples:
@@ -247,6 +242,8 @@ rule Merge_BAM_Files_PerSample:
 		mkdir -p $(dirname {output.mergedBAM})
 		samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
 		"""
+
+
 
 
 
