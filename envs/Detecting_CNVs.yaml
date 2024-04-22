@@ -3,12 +3,19 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.8
+  - python
   - samtools
   - bedtools
-  - cnvnator=0.4
-  - root=6.20
+  - cnvnator
+  - root
   - readline
+  - cnvpytor
+  - scipy
+  - matplotlib
+  - seaborn
+  - pandas
+  - h5py
+  - jupyter
   - r-base
   - r-dplyr
   - r-ggplot2
