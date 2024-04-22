@@ -2,16 +2,12 @@ name: Cnvpytor_env
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - python
   - cnvpytor
-  - requests
   - readline
-  - pathlib
   - pysam
-  - numpy
   - scipy
   - matplotlib
   - h5py
-  - xlsxwriter
+
