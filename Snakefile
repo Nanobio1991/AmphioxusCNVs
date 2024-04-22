@@ -265,41 +265,38 @@ rule reference_genome_clean:
 		"envs/Detecting_CNVs.yaml",
 	shell:
 		"""
-        awk 'BEGIN {{p=1}} /^>/'{{'if ($0 ~ /scaf/) p=0; if (p) print $0;'}}' {input.amphioxus_genome} > {output.amphioxus_genome_cleaned}
+		awk 'BEGIN {{p=1}} /^>/'{{'{if (\\$0 ~ /scaf/) p=0; if (p) print \\$0;}'}}' {input} > {output.amphioxus_genome_cleaned}
 		samtools faidx {output.amphioxus_genome_cleaned}
-		cat > {output.configfile_ref} <<- 'EOF'
-		from collections import OrderedDict
-
-		import_reference_genomes = {{
-			"Branchiostoma": {{
-				"name": "BraLan3",
-				"species": "Branchiostoma lanceolatum",
-				"chromosomes": OrderedDict([
-					("chr1", (43860960, "A")),
-					("chr2", (38510819, "A")),
-					("chr3", (34610492, "A")),
-					("chr4", (31719604, "A")),
-					("chr5", (25701974, "A")),
-					("chr6", (24533633, "A")),
-					("chr7", (24230189, "A")),
-					("chr8", (23752511, "A")),
-					("chr9", (23231292, "A")),
-					("chr10", (20381850, "A")),
-					("chr11", (20367708, "A")),
-					("chr12", (19917020, "A")),
-					("chr13", (19776172, "A")),
-					("chr14", (19709165, "A")),
-					("chr15", (19381563, "A")),
-					("chr16", (18823661, "A")),
-					("chr17", (18214296, "A")),
-					("chr18", (17113871, "A")),
-					("chr19", (15322015, "A"))
-				]),
-				"gc_file": "",
-				"mask_file": "results/CNVpytor/BraLan3_gc.pytor"
-			}}
-		}}
-		EOF
+		echo 'from collections import OrderedDict' > {output.configfile_ref}
+		echo 'import_reference_genomes = {{' >> {output.configfile_ref}
+		echo '    "Branchiostoma": {{' >> {output.configfile_ref}
+		echo '        "name": "BraLan3",' >> {output.configfile_ref}
+		echo '        "species": "Branchiostoma lanceolatum",' >> {output.configfile_ref}
+		echo '        "chromosomes": OrderedDict([' >> {output.configfile_ref}
+		echo '            ("chr1", (43860960, "A")),' >> {output.configfile_ref}
+		echo '            ("chr2", (38510819, "A")),' >> {output.configfile_ref}
+		echo '            ("chr3", (34610492, "A")),' >> {output.configfile_ref}
+		echo '            ("chr4", (31719604, "A")),' >> {output.configfile_ref}
+		echo '            ("chr5", (25701974, "A")),' >> {output.configfile_ref}
+		echo '            ("chr6", (24533633, "A")),' >> {output.configfile_ref}
+		echo '            ("chr7", (24230189, "A")),' >> {output.configfile_ref}
+		echo '            ("chr8", (23752511, "A")),' >> {output.configfile_ref}
+		echo '            ("chr9", (23231292, "A")),' >> {output.configfile_ref}
+		echo '            ("chr10", (20381850, "A")),' >> {output.configfile_ref}
+		echo '            ("chr11", (20367708, "A")),' >> {output.configfile_ref}
+		echo '            ("chr12", (19917020, "A")),' >> {output.configfile_ref}
+		echo '            ("chr13", (19776172, "A")),' >> {output.configfile_ref}
+		echo '            ("chr14", (19709165, "A")),' >> {output.configfile_ref}
+		echo '            ("chr15", (19381563, "A")),' >> {output.configfile_ref}
+		echo '            ("chr16", (18823661, "A")),' >> {output.configfile_ref}
+		echo '            ("chr17", (18214296, "A")),' >> {output.configfile_ref}
+		echo '            ("chr18", (17113871, "A")),' >> {output.configfile_ref}
+		echo '            ("chr19", (15322015, "A"))' >> {output.configfile_ref}
+		echo '        ]),' >> {output.configfile_ref}
+		echo '        "gc_file": "",' >> {output.configfile_ref}
+		echo '        "mask_file": "results/CNVpytor/BraLan3_gc.pytor"' >> {output.configfile_ref}
+		echo '    }}' >> {output.configfile_ref}
+		echo '}}' >> {output.configfile_ref}
 		"""
 
 
