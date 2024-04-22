@@ -264,7 +264,7 @@ rule reference_genome_clean:
 		"envs/Detecting_CNVs.yaml",
 	shell:
 		"""
-    	awk 'BEGIN {{p=1}} /^>/'{{'{{if (\$0 ~ /scaf/) p=0; if (p) print \$0;}}'}}' {input.amphioxus_genome} > {output.amphioxus_genome_cleaned}
+		cat {input.genome_fa} | awk 'BEGIN {p=1} /^>/{if ($0 ~ /scaf/) p=0; else p=1} p' > {output.cleaned_genome}
 		samtools faidx {output.amphioxus_genome_cleaned}
 		"""
 
