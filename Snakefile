@@ -332,7 +332,7 @@ rule run_cnvpytor:
 	shell:
 		"""
 		cnvpytor -root {params.gc_ref} -gc {input.amphioxus_genome_cleaned} -make_gc_file
-		cnvpytor -root {params.pytor_file} -rd {input.bam} -chrom chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -conf input.configfile_ref} > {log.out} 2> {log.err} 
+		cnvpytor -root {params.pytor_file} -rd {input.bam} -chrom chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -conf input.configfile_ref > {log.out} 2> {log.err} 
 		cnvpytor -root {params.pytor_file} -his {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err} 
 		cnvpytor -root {params.pytor_file} -partition {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
 		cnvpytor -root {params.pytor_file} -call {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
