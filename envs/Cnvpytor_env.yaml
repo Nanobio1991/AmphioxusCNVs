@@ -7,7 +7,7 @@ dependencies:
   - python
   - cnvpytor
   - requests
-  - gnureadline
+  - readline
   - pathlib
   - pysam
   - numpy
