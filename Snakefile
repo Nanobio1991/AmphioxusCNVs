@@ -243,6 +243,7 @@ rule Merge_BAM_Files_PerSample:
 		"""
 		mkdir -p $(dirname {output.mergedBAM})
 		samtools merge -@ {params.threads} {output.mergedBAM} {input.bamFiles} > {log.out} 2> {log.err}
+		samtools index {output.mergedBAM}
 		"""
 
 
@@ -300,6 +301,30 @@ rule reference_genome_clean:
 
 
 
+
+	'''
+	Creating a gc file for reference genome
+	'''
+rule reference_genome_gc:
+	input:
+		amphioxus_genome_cleaned = "data/Cleaned_Branchiostoma_lanceolatum.BraLan3_genome.fa",
+	output:
+		gc_ref="results/CNVpytor/BraLan3_gc.pytor",
+	log:
+		err = "logs/reference_genome_gc/gc.err",
+		out = "logs/reference_genome_gc/gc.out"
+	conda:
+		"envs/Cnvpytor_env.yaml"
+	shell:
+		"""
+		cnvpytor -root {output.gc_ref} -gc {input.amphioxus_genome_cleaned} -make_gc_file > {log.out} 2> {log.err}
+		"""
+
+
+
+
+
+
 configfile: "config.yaml"
 
 rule run_all_samples_for_CNVs_pytor:
@@ -317,7 +342,6 @@ rule run_cnvpytor:
 	input:
 		bam=rules.Merge_BAM_Files_PerSample.output.mergedBAM,
 		configfile_ref=rules.reference_genome_clean.output.configfile_ref,
-		amphioxus_genome_cleaned=rules.reference_genome_clean.output.amphioxus_genome_cleaned
 	output:
 		cnv_calls="results/CNVpytor/{sample}_cnv_calls.tsv"
 	log:
@@ -327,13 +351,11 @@ rule run_cnvpytor:
 		"envs/Cnvpytor_env.yaml"
 	params:
 		pytor_file="results/CNVpytor/{sample}.pytor",
-		gc_ref="results/CNVpytor/BraLan3_gc.pytor",
 		bin_size=1000
 	shell:
 		"""
-		cnvpytor -root {params.gc_ref} -gc {input.amphioxus_genome_cleaned} -make_gc_file
-		cnvpytor -root {params.pytor_file} -rd {input.bam} -chrom chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -conf input.configfile_ref > {log.out} 2> {log.err} 
+		cnvpytor -root {params.pytor_file} -rd {input.bam} -chrom chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -conf {input.configfile_ref} > {log.out} 2> {log.err} 
 		cnvpytor -root {params.pytor_file} -his {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err} 
 		cnvpytor -root {params.pytor_file} -partition {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
-		cnvpytor -root {params.pytor_file} -call {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
+		cnvpytor -root {params.pytor_file} -call {params.bin_size} -conf {input.configfile_ref} > {output.cnv_calls} 2> {log.err}
 		"""
