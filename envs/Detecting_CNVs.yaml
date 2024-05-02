@@ -12,3 +12,5 @@ dependencies:
   - r-tidyr
   - r-readr
   - r-stringr
+  - r-readxl
+  - r-writexl

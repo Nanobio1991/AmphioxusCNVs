@@ -359,3 +359,54 @@ rule run_cnvpytor:
 		cnvpytor -root {params.pytor_file} -partition {params.bin_size} -conf {input.configfile_ref} > {log.out} 2> {log.err}
 		cnvpytor -root {params.pytor_file} -call {params.bin_size} -conf {input.configfile_ref} > {output.cnv_calls} 2> {log.err}
 		"""
+
+
+
+	'''
+	Plot CNVs
+	'''
+rule plot_CNVs:
+	input:
+		cnv_merged="results/CNVpytor/merged_cnvs.xlsx"
+	output:
+		chr_cnv_class_plot="results/plots/cnvs_cassification.pdf",
+		chr_cnv_private_plot="results/plots/private_cnvs.pdf",
+		length_distribution_cnv_plot="results/plots/Lenght_distribution_plot.pdf",
+		cnv_not_merged="results/CNVpytor/cnv_not_merged.bed",
+		cassification_summary="results/plots/ClassificationSummary.xlsx"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	script:
+		"scripts/Ploting_cnvs.R"
+
+
+
+	'''
+	Merging of some data for venn diagram
+	'''
+rule merge_for_venn_diagram:
+	input:
+		cnv_not_merged=rules.plot_CNVs.output.cnv_not_merged,
+		exons="data/Branchiostoma_lanceolatum.BraLan3_strong.gtf",
+		merged_bed=rules.merge_with_bedtools.output.merged_bed,
+		trf_repeats= rules.mask_tandem_repeats_with_trf.output.trf_repeats,
+		repeatmasker_repeats= rules.mask_genome_with_repeatmasker.output.repeatmasker_repeats
+	output:
+		cnv_merged_merged="results/plots/venn/cnvs.bed",
+		exons_merged="results/plots/venn/exons.bed",
+		merged_bed="results/plots/venn/sds.bed",
+		repeats="results/plots/venn/repeats.bed"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	params:
+		exons_bed="data/exons_not_merged.bed",
+		repeats_bed="results/venn/repeats_not_merged.bed"
+	shell:
+		"""
+		bedtools merge -i {input.cnv_not_merged} > {output.cnv_merged_merged}
+		awk '{if($3 ~ /exon/){print $1"\t"$4"\t"$5}}' {input.exons}  | grep -v '^scaf' | sort -k1,1V -k2,2n > {params.exons_bed}
+		bedtools merge -i {params.exons_bed} > {output.exons_merged}
+		cat {input.repeatmasker_repeats} {input.trf_repeats} | sort -k1,1V -k2,2n > {params.repeats}
+		bedtools merge -i {params.repeats_bed} > {output.repeats}
+		cp {input.merged_bed} {output.merged_bed}
+		"""
