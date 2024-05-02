@@ -400,10 +400,12 @@ rule merge_for_venn_diagram:
 		"envs/Detecting_CNVs.yaml"
 	params:
 		exons_bed="data/exons_not_merged.bed",
-		repeats_bed="results/venn/repeats_not_merged.bed"
+		repeats_bed="results/venn/repeats_not_merged.bed",
+		cnv_sort="results/venn/cnv_sort.bed"
 	shell:
 		"""
-		bedtools merge -i {input.cnv_not_merged} > {output.cnv_merged_merged}
+		sort -k1,1V -k2,2n {input.cnv_not_merged} > {params.cnv_sort}
+		bedtools merge -i {params.cnv_sort} > {output.cnv_merged_merged}
 		awk '{{if($3 ~ /exon/){{print $1" "$4"    "$5}}}}' {input.exons} | grep -v '^scaf' | sort -k1,1V -k2,2n > {params.exons_bed}
 		bedtools merge -i {params.exons_bed} > {output.exons_merged}
 		cat {input.repeatmasker_repeats} {input.trf_repeats} | sort -k1,1V -k2,2n > {params.repeats_bed}
