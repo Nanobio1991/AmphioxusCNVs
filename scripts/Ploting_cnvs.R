@@ -390,7 +390,7 @@ cnv_merged$st <- as.numeric(as.character(cnv_merged$st))
 cnv_merged$end <- as.numeric(as.character(cnv_merged$end))
 
 #remove some collumns that are not relevant for the graph
-cnv_merged <- select(cnv_merged, -"TYPE", -starts_with(c("F", "M", "R") ))
+cnv_merged <- select(cnv_merged, -"TYPE", -"Classification", -"SIZE", -starts_with(c("F", "M", "R") ))
 
 write.table(cnv_merged, "results/CNVpytor/cnv_not_merged.bed", sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
 
