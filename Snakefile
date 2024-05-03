@@ -406,7 +406,7 @@ rule merge_for_venn_diagram:
 		"""
 		sort -k1,1V -k2,2n {input.cnv_not_merged} > {params.cnv_sort}
 		bedtools merge -i {params.cnv_sort} > {output.cnv_merged_merged}
-		awk 'BEGIN{{OFS="\t"}} {{if($3 ~ /exon/){{print $1, $4, $5}}}}' data/Branchiostoma_lanceolatum.BraLan3_strong.gtf | grep -v '^scaf' | sort -k1,1V -k2,2n
+		awk 'BEGIN{{OFS="\t"}} {{if($3 ~ /exon/){{print $1"\t"$3"\t"$4"\t"$5}}}}' data/Branchiostoma_lanceolatum.BraLan3_strong.gtf | grep -v '^scaf' | sort -k1,1V -k2,2n
 		awk '{{if($3 ~ /exon/){{print $1" "$4"    "$5}}}}' {input.exons} | grep -v '^scaf' | sort -k1,1V -k2,2n > {params.exons_bed}
 		bedtools merge -i {params.exons_bed} > {output.exons_merged}
 		cat {input.repeatmasker_repeats} {input.trf_repeats} | sort -k1,1V -k2,2n > {params.repeats_bed}
