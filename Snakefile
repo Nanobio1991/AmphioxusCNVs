@@ -426,19 +426,14 @@ rule intersect_for_venn_diagram:
 		merged_bed=rules.merge_for_venn_diagram.output.merged_bed,
 		repeats=rules.merge_for_venn_diagram.output.repeats
 	output:
-		intersect_cnvs_exons="results/plots/venn/intersect_cnvs_exons.bed",
-		intersect_cnvs_sds="results/plots/venn/intersect_cnvs_sds.bed",
-		intersect_cnvs_repeats="results/plots/venn/intersect_cnvs_repeats.bed",
-		intersect_exons_sds="results/plots/venn/intersect_exons_sds.bed",
-		intersect_exons_repeats="results/plots/venn/intersect_exons_repeats.bed",
-		intersect_repeats_sds="results/plots/venn/intersect_repeats_sds.bed",
-		multiinter="results/plots/venn/multiintersect.bed"
+		multiinter_exons="results/plots/venn/multiintersect_exons.bed",
+		multiinter_repeats="results/plots/venn/multiintersect_repeats.bed"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	shell:
 		"""
-		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.repeats} > {output.multiinter}
-		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.exons_merged} > {output.multiinter}
+		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.exons_merged} > {output.multiinter_exons}		
+		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.repeats} > {output.multiinter_repeats}
 		"""
 
 
