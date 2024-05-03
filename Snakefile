@@ -437,13 +437,8 @@ rule intersect_for_venn_diagram:
 		"envs/Detecting_CNVs.yaml"
 	shell:
 		"""
-		bedtools intersect -a {input.cnv_merged_merged} -b {input.exons_merged} > {output.intersect_cnvs_exons}
-		bedtools intersect -a {input.cnv_merged_merged} -b {input.merged_bed} > {output.intersect_cnvs_sds}
-		bedtools intersect -a {input.cnv_merged_merged} -b {input.repeats} > {output.intersect_cnvs_repeats}
-		bedtools intersect -a {input.exons_merged} -b {input.merged_bed} > {output.intersect_exons_sds}
-		bedtools intersect -a {input.exons_merged} -b {input.repeats} > {output.intersect_exons_repeats}
-		bedtools intersect -a {input.repeats} -b {input.merged_bed} > {output.intersect_repeats_sds}
-		bedtools multiinter -i {input.cnv_merged_merged} {input.exons_merged} {input.merged_bed} {input.repeats} > {output.multiinter}
+		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.repeats} > {output.multiinter}
+		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.exons_merged} > {output.multiinter}
 		"""
 
 
