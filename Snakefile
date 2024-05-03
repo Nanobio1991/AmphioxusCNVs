@@ -408,7 +408,7 @@ rule merge_for_venn_diagram:
 		bedtools merge -i {params.cnv_sort} > {output.cnv_merged_merged}
 		awk '{{if($3 ~ /exon/){{print $1"\t"$4"\t"$5}}}}' {input.exons} | grep -v '^scaf' | sort -k1,1V -k2,2n > {params.exons_bed}
 		bedtools merge -i {params.exons_bed} > {output.exons_merged}
-		cat {input.repeatmasker_repeats} {input.trf_repeats} | awk '{{printf "%s\t%s\t%s\n", $1, $2, $3}}' | sort -k1,1V -k2,2n > {params.repeats_bed}
+		cat {input.repeatmasker_repeats} {input.trf_repeats} | awk '{{{printf "%s\t%s\t%s\n", $1, $2, $3}}}' | sort -k1,1V -k2,2n > {params.repeats_bed}
 		bedtools merge -i {params.repeats_bed} > {output.repeats}
 		cp {input.merged_bed} {output.merged_bed}
 		"""
