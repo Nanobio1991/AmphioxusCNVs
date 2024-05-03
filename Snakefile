@@ -431,7 +431,8 @@ rule intersect_for_venn_diagram:
 		intersect_cnvs_repeats="results/plots/venn/intersect_cnvs_repeats.bed",
 		intersect_exons_sds="results/plots/venn/intersect_exons_sds.bed",
 		intersect_exons_repeats="results/plots/venn/intersect_exons_repeats.bed",
-		intersect_repeats_sds="results/plots/venn/intersect_repeats_sds.bed"
+		intersect_repeats_sds="results/plots/venn/intersect_repeats_sds.bed",
+		multiinter="results/plots/venn/multiintersect.bed"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	shell:
@@ -442,6 +443,7 @@ rule intersect_for_venn_diagram:
 		bedtools intersect -a {input.exons_merged} -b {input.merged_bed} > {output.intersect_exons_sds}
 		bedtools intersect -a {input.exons_merged} -b {input.repeats} > {output.intersect_exons_repeats}
 		bedtools intersect -a {input.repeats} -b {input.merged_bed} > {output.intersect_repeats_sds}
+		bedtools multiinter -i {input.cnv_merged_merged} {input.exons_merged} {input.merged_bed} {input.repeats} > {output.multiinter}
 		"""
 
 
