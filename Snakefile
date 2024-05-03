@@ -412,3 +412,41 @@ rule merge_for_venn_diagram:
 		bedtools merge -i {params.repeats_bed} > {output.repeats}
 		cp {input.merged_bed} {output.merged_bed}
 		"""
+
+
+
+
+	'''
+	Intersect for venn diagram
+	'''
+rule intersect_for_venn_diagram:
+	input:
+		cnv_merged_merged=rules.merge_for_venn_diagram.output.cnv_merged_merged,
+		exons_merged=rules.merge_for_venn_diagram.output.exons_merged,
+		merged_bed=rules.merge_for_venn_diagram.output.merged_bed,
+		repeats=rules.merge_for_venn_diagram.output.repeats
+	output:
+		intersect_cnvs_exons="results/plots/venn/intersect_cnvs_exons.bed",
+		intersect_cnvs_sds="results/plots/venn/intersect_cnvs_sds.bed",
+		intersect_cnvs_repeats="results/plots/venn/intersect_cnvs_repeats.bed",
+		intersect_exons_sds="results/plots/venn/intersect_exons_sds.bed",
+		intersect_exons_repeats="results/plots/venn/intersect_exons_repeats.bed",
+		intersect_repeats_sds="results/plots/venn/intersect_repeats_sds.bed"
+	conda:
+		"envs/Detecting_CNVs.yaml"
+	shell:
+		"""
+		bedtools intersect -a {input.cnv_merged_merged} -b {input.exons_merged} > {output.intersect_cnvs_exons}
+		bedtools intersect -a {input.cnv_merged_merged} -b {input.merged_bed} > {output.intersect_cnvs_sds}
+		bedtools intersect -a {input.cnv_merged_merged} -b {input.repeats} > {output.intersect_cnvs_repeats}
+		bedtools intersect -a {input.exons_merged} -b {input.merged_bed} > {output.intersect_exons_sds}
+		bedtools intersect -a {input.exons_merged} -b {input.repeats} > {output.intersect_exons_repeats}
+		bedtools intersect -a {input.repeats} -b {input.merged_bed} > {output.intersect_repeats_sds}
+		"""
+
+
+
+
+
+
+
