@@ -6,14 +6,15 @@ This repository contains the Snakemake pipeline and scripts used for the analysi
 
 To conduct this analysis, you need:
 - A reference genome
-- Population data
+- A file that contains informations of the length of each chromosomes for the reference genome 
+- Population data (muplitiple high quality genomes of the studied species)
 
 These files should be placed in the `data/` directory.
 
 ## Usage
 
 1. **Prepare the Data:**
-   - Ensure the reference genome and population data are available in the `data/` directory.
+   - Ensure the reference genome, population data and required files are available in the `data/` directory.
    - You may need to modify the names of the input genomes in the Snakemake pipeline to match your specific file names.
 
 2. **Run the Pipeline:**
