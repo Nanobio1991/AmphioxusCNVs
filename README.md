@@ -27,7 +27,7 @@ The Snakemake pipeline and scripts provided here ensure that all results and plo
 ## Repository Contents
 
 - `Snakefile`: The Snakemake pipeline definition.
-- `envs`: Directory containing .yaml files that define the software environments and dependencies for Snakemake workflows.
+- `envs/`: Directory containing .yaml files that define the software environments and dependencies for Snakemake workflows.
 - `scripts/`: Directory containing all custom scripts used in the analysis.
 - `data/`: Directory where the reference genome and population data should be placed.
 - `results/`: Directory where output results and plots will be generated.
