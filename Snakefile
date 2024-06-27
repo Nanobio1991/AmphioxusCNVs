@@ -146,8 +146,7 @@ rule filter_sd_for_bedtools:
 	output:
 		sorted_bed="results/filtered_sd_data/sd_positions_sorted.bed",
 		intra_bed="results/filtered_sd_data/sd_positions_intra.bed",
-		inter_bed="results/filtered_sd_data/sd_positions_inter.bed",
-		length_plot = "results/plots/Histogram_of_filtered_SD_length.pdf"
+		inter_bed="results/filtered_sd_data/sd_positions_inter.bed"
 	conda:
 		"envs/Finding_SDs.yaml"
 	script:
@@ -195,10 +194,10 @@ rule plot_SDs:
 		trf_repeats= rules.mask_tandem_repeats_with_trf.output.trf_repeats,
 		repeatmasker_repeats= rules.mask_genome_with_repeatmasker.output.repeatmasker_repeats
 	output:
-		sd_bar_plot="results/plots/sd_bar_plot.pdf",
-		sd_chr_plot1="results/plots/sd_chr_plot1.pdf",
-		sd_chr_plot2="results/plots/sd_chr_plot2.pdf",
-		sd_chr_plot3="results/plots/sd_chr_plot3.pdf"
+		sd_plot1="results/plots/Length_of_SD_type_per_chromosome.pdf",
+		sd_plot2="results/plots/Types_of_SDs_across_chromosomes.pdf",
+		sd_plot3="results/plots/SD_and_repeats_across_chromosomes.pdf",
+		sd_plot4="results/plots/length_distribution_SDs.pdf"
 	conda:
 		"envs/Finding_SDs.yaml"
 	script:
@@ -369,11 +368,9 @@ rule plot_CNVs:
 	input:
 		cnv_merged="results/CNVpytor/merged_cnvs.xlsx"
 	output:
-		chr_cnv_class_plot="results/plots/cnvs_cassification.pdf",
-		chr_cnv_private_plot="results/plots/private_cnvs.pdf",
-		length_distribution_cnv_plot="results/plots/Lenght_distribution_plot.pdf",
-		cnv_not_merged="results/CNVpytor/cnv_not_merged.bed",
-		cassification_summary="results/plots/ClassificationSummary.xlsx"
+		chr_plot1="results/plots/Types_od_CNVs_across_chromosomes.pdf",
+		cnv_plot2="results/plots/private_cnvs.pdf",
+		cnv_plot3="results/plots/Lenght_distribution_CNVs.pdf"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	script:
