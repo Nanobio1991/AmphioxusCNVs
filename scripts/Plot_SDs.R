@@ -1,11 +1,10 @@
+setwd("//wsl.localhost/Ubuntu/home/nanobio/AmphioxusCNVs/AmphioxusCNVs/")
 
 
 #Libraries 
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-
-
 
 
 ###############################################################################
@@ -53,13 +52,13 @@ total_length <- total_length[ordered_indices, ]
 total_length$V1 <- factor(total_length$V1, levels = unique(total_length$V1))
 
 
-pdf("results/plots/sd_bar_plot.pdf.pdf")
+pdf("results/plots/Length_of_SD_type_per_chromosome.pdf", width = 10, height = 8)
 
 # Plot
 ggplot(total_length, aes(x = V1, y = Total_Length, fill = Type)) +
   geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(values = c("Intra" = "blue", "Intersection" = "chartreuse3", "Inter" = "orange")) +
-  labs(title = "Total Length of SDs by Chromosome",
+  scale_fill_manual(values = c("Intra" = "blue", "Intersection" = "green", "Inter" = "orange")) +
+  labs(title = "Length of SD type per Chromosome",
        x = "Chromosome",
        y = "Total Length",
        fill = "SD Category") +
@@ -141,7 +140,11 @@ pdf("results/plots/sd_chr_plot1.pdf.pdf")
 
 plot_all_chr_rows_len(length_chr, sd_positions_merged, "blue")
 
+
+
 dev.off()
+
+
 
 
 
@@ -165,8 +168,9 @@ combined_sd_df <- combined_sd_df %>%
   rename(Chr = V1, st = V2, end = V3)
 
 
+
 #Create function and plot 
-plot_all_chr_rows_len <- function(lenDF, regDF){
+plot_all_chr_rows_len <- function(lenDF, regDF, plot_title = "Chromosome Visualization"){
   height <- 0.6
   maxY <- length(lenDF$Chr) * (height + 0.2) # Adjust spacing
   maxChrLength <- max(lenDF$Length) # Find the maximum chromosome length
@@ -193,7 +197,10 @@ plot_all_chr_rows_len <- function(lenDF, regDF){
   # Add y-axis with descriptive labels
   axis(2, at = seq(0, maxY - (height + 0.2), by = (height + 0.2)), labels=rev(chrLabels), las=1, cex.axis=0.7)
   
+  # Adding a title to the plot
+  title(main = plot_title, col.main = "black", font.main = 1)
 }
+
 
 draw_chr_row <- function(h, p, chromosomeLength, regDF){
   for(r in 1:nrow(regDF)){
@@ -209,10 +216,10 @@ draw_chr_row <- function(h, p, chromosomeLength, regDF){
 }
 
 
-pdf("results/plots/sd_chr_plot2.pdf.pdf")
+pdf("results/plots/Types_of_SDs_across_chromosomes.pdf",width = 15, height = 8)
 
 
-plot_all_chr_rows_len(length_chr, combined_sd_df)
+plot_all_chr_rows_len(length_chr, combined_sd_df, "Types of Segmental Duplications across chromosomes")
 # Add a legend to the plot
 
 legend("bottomright",            # Position of the legend
@@ -220,7 +227,7 @@ legend("bottomright",            # Position of the legend
        fill = c("blue", "orange", "chartreuse3"), # Colors corresponding to the labels
        title = "SD Types",    # Title for the legend
        cex = 0.8,             # Character expansion factor for the legend text
-       bg = 'white')          # Background color of the legend box
+       bg = 'white')          # Background color of the legend box
 
 
 dev.off()
@@ -252,11 +259,6 @@ repeats_repeatmasker <- read.table('results/mask_genome_with_repeatmasker/repeat
 
 
 
-#################################################################################
-############## CORRECTED CHROMOSOME PLOT 2 ########################################
-#################################################################################
-
-
 # Combine into one dataframe and add a 'Type' column
 combined_sd_df2 <- bind_rows(
   sd_intra %>% mutate(Type = "Intra"),
@@ -267,40 +269,9 @@ combined_sd_df2 <- bind_rows(
 )
 
 # use combined_sd_df with the function
-
 combined_sd_df2 <- combined_sd_df2 %>%
   rename(Chr = V1, st = V2, end = V3)
 
-
-#Create function and plot 
-plot_all_chr_rows_len <- function(lenDF, regDF){
-  height <- 0.6
-  maxY <- length(lenDF$Chr) * (height + 0.2) # Adjust spacing
-  maxChrLength <- max(lenDF$Length) # Find the maximum chromosome length
-  
-  # Adjust plot to reflect chromosome lengths properly
-  plot(c(1:10), c(1:10), axes=F, xlab="", ylab="", ylim=c(0, maxY), xlim=c(0, maxChrLength), col=NA)
-  
-  for(c in 1:length(lenDF$Chr)){
-    chrName <- lenDF$Chr[c]
-    pos <- maxY - (c * (height + 0.2)) # Adjust for spacing
-    chromosomeLength <- lenDF$Length[c]
-    
-    # Filter regDF for the current chromosome
-    currentRegDF <- regDF[regDF$Chr == chrName,]
-    
-    # Draw the chromosome and the SDs
-    draw_chr_row(height, pos, chromosomeLength, currentRegDF)
-    polygon(c(0, chromosomeLength, chromosomeLength, 0), c(pos-height/2, pos-height/2, pos+height/2, pos+height/2), col=NA, border="black")
-  }
-  
-  # Create descriptive labels for each chromosome
-  chrLabels <- lenDF$Chr
-  
-  # Add y-axis with descriptive labels
-  axis(2, at = seq(0, maxY - (height + 0.2), by = (height + 0.2)), labels=rev(chrLabels), las=1, cex.axis=0.7)
-  
-}
 
 draw_chr_row <- function(h, p, chromosomeLength, regDF){
   for(r in 1:nrow(regDF)){
@@ -310,33 +281,121 @@ draw_chr_row <- function(h, p, chromosomeLength, regDF){
     
     # Assign color based on the type
     color <- ifelse(type == "Intra", "blue", 
-                    ifelse(type == "Inter", "orange", 
-                           ifelse(type == "Mixed", "chartreuse3",
+                    ifelse(type == "Inter", "blue", 
+                           ifelse(type == "Mixed", "blue",
                                   ifelse(type == "trf", "red", "red"))))
     
     polygon(c(sts, ends, ends, sts), c(p-h/2, p-h/2, p+h/2, p+h/2), col=color, border=NA)
   }
 }
 
-pdf("results/plots/sd_chr_plot3.pdf.pdf")
+pdf("results/plots/SD_and_repeats_across_chromosomes.pdf",width = 15, height = 8)
 
-plot_all_chr_rows_len(length_chr, combined_sd_df2)
+plot_all_chr_rows_len(length_chr, combined_sd_df2, "Segmental duplications and repeats across chromosomes")
 # Add a legend to the plot
 
 legend("bottomright",            # Position of the legend
-       legend = c("Intra", "Inter", "Intersection", "Repeats"),  # Labels for the legend
-       fill = c("blue", "orange", "chartreuse3", "red"), # Colors corresponding to the labels
+       legend = c("SDs", "Repeats"),  # Labels for the legend
+       fill = c("blue", "red"), # Colors corresponding to the labels
        title = "SD Types",    # Title for the legend
        cex = 0.8,             # Character expansion factor for the legend text
        bg = 'white')          # Background color of the legend box
-
-
 
 dev.off()
 
 
 
 
+#################################################################################
+############## LENGTH DISTRIBUTION PLOT #########################################
+#################################################################################
+
+
+
+
+# Add a category column to each dataframe
+sd_intra <- sd_intra %>% mutate(Category = 'Intra')
+sd_inter <- sd_inter %>% mutate(Category = 'Inter')
+sd_mixed <- sd_mixed %>% mutate(Category = 'Intersection')
+
+# Combine the dataframes into one
+combined_sd <- bind_rows(sd_intra, sd_inter, sd_mixed)
+
+
+
+pdf("results/plots/length_distribution_SDs.pdf",width = 15, height = 8)
+
+# Create the density plot with lines for each classification
+ggplot(combined_sd, aes(x = V4, color = Category)) +
+  geom_density(size = 0.7) +  # Increase line thickness
+  scale_x_continuous(limits = c(0, 7500), breaks = seq(0, 20000, by = 1000)) +  # Set x-axis limits and breaks
+  scale_color_manual(values = c('Intra' = 'blue', 'Inter' = 'orange', 'Intersection' = 'green')) +
+  labs(title = "Length Distribution of Segmental Duplications", x = "Length of SDs (bp)", y = "Density") +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+dev.off()
+
+
+
+
+
+
+
+
+# Load necessary libraries
+library(dplyr)
+
+
+# Function to perform KS test within a chromosome
+ks_test_within_chromosome <- function(df, chrom_length) {
+  midpoints <- (df$st + df$end) / 2
+  normalized_midpoints <- midpoints / chrom_length
+  ks_test <- ks.test(normalized_midpoints, "punif")
+  return(ks_test)
+}
+
+# Apply the KS test to each chromosome
+ks_results <- sd_positions_merged %>%
+  group_by(Chr) %>%
+  do({
+    chrom_length <- length_chr$Length[length_chr$Chr == unique(.$Chr)]
+    ks_test <- ks_test_within_chromosome(., chrom_length)
+    data.frame(Chr = unique(.$Chr), D = ks_test$statistic, p.value = ks_test$p.value)
+  })
+
+# Print KS test results
+ks_results
+
+
+fixed_sds <- read.table('results/plots/venn/true_sds.bed', header = FALSE, sep = "\t")
+
+
+non_fixed_sds <- read.table('results/plots/venn/nonfixed_sds.bed', header = FALSE, sep = "\t")
+fixed_sd <- fixed_sd %>%
+  rename(Chr = V1, st = V2, end = V3)
+
+
+# Apply the KS test to each chromosome
+ks_results <- fixed_sd %>%
+  group_by(Chr) %>%
+  do({
+    chrom_length <- length_chr$Length[length_chr$Chr == unique(.$Chr)]
+    ks_test <- ks_test_within_chromosome(., chrom_length)
+    data.frame(Chr = unique(.$Chr), D = ks_test$statistic, p.value = ks_test$p.value)
+  })
+
+# Print KS test results
+ks_results
+
+ks_results <- ks_results %>%
+  rename(D_fixed = D, p.value_fixed = p.value)
+
+# Convert to a dataframe
+fixed_sds <- as.data.frame(ks_results)
+
+# Print the dataframe
+print(fixed_sds)
 
 
 

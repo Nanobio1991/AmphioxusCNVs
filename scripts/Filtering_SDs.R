@@ -74,42 +74,8 @@ sd_data_filtered <- sd_data_filtered %>%
     V4 = ifelse(grepl("^Nhr", V4), sub("^Nhr", "chr", V4), V4)
   )
 
-
-
-
-###############################################################################
-###########################  HISTOGRAMS OF LENGTHS  ###########################
-###############################################################################
-
-
-#my
-pdf("results/plots/Histogram_of_filtered_SD_length.pdf")
-
-
-# Add histogram for 'same_chromosome == FALSE' with a different color
-hist(sd_data_filtered$mean_length[sd_data_filtered$same_chromosome == FALSE], 
-     breaks = 3000, 
-     xlim = c(1000, 3000),
-     ylim = c(0, 75000),
-     col = "orange",
-     main = "Filtered SD length",
-     xlab = "bp")
-
-# Create a histogram with two colors based on the 'same_chromosome' column
-hist(sd_data_filtered$mean_length[sd_data_filtered$same_chromosome == TRUE], 
-     breaks = 5000, 
-     xlim = c(1000, 3000),
-     ylim = c(0, 80000),
-     col = "blue", 
-     add = TRUE)
-
-
-# Add legend
-legend("topright", legend = c("Same Chromosome", "Different Chromosome"), fill = c("blue", "orange"))
-
-dev.off()
-
-
+sd_data_filtered <- sd_data_filtered %>%
+  select(-V7, -V8, -V9, -V10, -V11, -V12, -V13, -V14)
 
 
 
@@ -229,7 +195,6 @@ second_copy_df <- sd_data_filtered %>%
 
 # Combine the two dataframes
 sd_positions <- bind_rows(first_copy_df, second_copy_df)
-head(sd_positions)
 
 # Adjusting sd_positions column names
 sd_positions <- sd_positions %>%

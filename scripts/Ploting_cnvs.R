@@ -1,5 +1,5 @@
 #set working directory 
-#setwd("//wsl.localhost/Ubuntu/home/nanobio/AmphioxusCNVs/AmphioxusCNVs")
+setwd("//wsl.localhost/Ubuntu/home/nanobio/AmphioxusCNVs/AmphioxusCNVs")
 
 options(scipen = 999)
 
@@ -130,7 +130,7 @@ plot_all_chr_rows_len <- function(lenDF, regDF, plot_title = "Chromosome Visuali
   axis(2, at = seq(0, maxY - (height + 0.2), by = (height + 0.2)), labels=rev(chrLabels), las=1, cex.axis=0.7)
   
   # Adding a title to the plot
-  title(main = plot_title, col.main = "black", font.main = 4)
+  title(main = plot_title, col.main = "black", font.main = 1)
 }
 
 
@@ -148,16 +148,16 @@ draw_chr_row <- function(h, p, chromosomeLength, regDF){
 }
 
 
-pdf("results/plots/cnvs_cassification.pdf",width = 15, height = 8)
+pdf("results/plots/Types_od_CNVs_across_chromosomes.pdf",width = 15, height = 8)
 
 
-plot_all_chr_rows_len(length_chr, cnv_merged, "Copy Number Variations Across chromosomes")
+plot_all_chr_rows_len(length_chr, cnv_merged, "Types of Copy Number Variations Across chromosomes")
 # Add a legend to the plot
 
 legend("bottomright",            # Position of the legend
        legend = c("gain", "loss", "gain/loss"),  # Labels for the legend
        fill = c("blue", "orange", "chartreuse3"), # Colors corresponding to the labels
-       title = "CNV Cassification",    # Title for the legend
+       title = "CNV Types",    # Title for the legend
        cex = 0.8,             # Character expansion factor for the legend text
        bg = 'white')          # Background color of the legend box
 
@@ -165,9 +165,10 @@ legend("bottomright",            # Position of the legend
 dev.off()
 
 
-##############################################################################################
-#######@@#### POPULATION CHORMOSOME PLOT OF REGIONS THAT ARE CNV IN ONLY 1 POP ###############
-##############################################################################################
+
+###################################################
+#######@@#### PRIVATE CNVS ########################
+###################################################
 
 
 # Load the data
@@ -271,7 +272,7 @@ pdf("results/plots/private_cnvs.pdf",width = 15, height = 8)
 par(mfrow=c(1, 2)) 
 
 #Plot
-plot_all_chr_rows_len(length_chr, pop1_matched, "Private CNVs Pop 1")
+plot_all_chr_rows_len(length_chr, pop1_matched, "Private CNVs Banyuls-sur-Mer")
 
 
 # Add a legend to the plot
@@ -285,7 +286,7 @@ legend("bottomright",            # Position of the legend
 
 
 #Plot 
-plot_all_chr_rows_len(length_chr, pop2_matched, "Private CNVs Pop 2")
+plot_all_chr_rows_len(length_chr, pop2_matched, "Private CNVs Roscoff")
 
 
 # Add a legend to the plot
@@ -303,98 +304,25 @@ par(mfrow=c(1, 1))
 dev.off()
 
 
-############################# TABLE ##############################################
-
-
-table(cnv_merged$Classification)
-table(pop1_matched$Classification)
-table(pop2_matched$Classification)
-
-# Calculate the individual and total counts
-total_classification <- table(cnv_merged$Classification)
-pop1_classification <- table(pop1_matched$Classification)
-pop2_classification <- table(pop2_matched$Classification)
-
-# Initialize the summary table
-classification_table <- matrix(0, nrow = 4, ncol = 4, dimnames = list(
-  c("gain", "loss", "gain/loss", "Total"),
-  c("Shared", "Population_1", "Population_2", "Total")
-))
-
-# Fill the table with values
-classification_table["gain", "Population_1"] <- pop1_classification["gain"]
-classification_table["loss", "Population_1"] <- pop1_classification["loss"]
-classification_table["gain/loss", "Population_1"] <- pop1_classification["gain/loss"]
-
-classification_table["gain", "Population_2"] <- pop2_classification["gain"]
-classification_table["loss", "Population_2"] <- pop2_classification["loss"]
-classification_table["gain/loss", "Population_2"] <- pop2_classification["gain/loss"]
-
-classification_table["gain", "Total"] <- total_classification["gain"]
-classification_table["loss", "Total"] <- total_classification["loss"]
-classification_table["gain/loss", "Total"] <- total_classification["gain/loss"]
-
-# Calculate shared as defined by your requirements (if misunderstanding, adjust accordingly)
-classification_table["gain", "Shared"] <- total_classification["gain"] - pop1_classification["gain"] - pop2_classification["gain"]
-classification_table["loss", "Shared"] <- total_classification["loss"] - pop1_classification["loss"] - pop2_classification["loss"]
-classification_table["gain/loss", "Shared"] <- total_classification["gain/loss"] - pop1_classification["gain/loss"] - pop2_classification["gain/loss"]
-
-# Add totals for rows and columns
-classification_table["Total", ] <- colSums(classification_table[1:3, ], na.rm = TRUE)
-classification_table[, "Total"] <- rowSums(classification_table[, 1:3], na.rm = TRUE)
-
-# Convert matrix to a dataframe for better viewing
-classification_df <- as.data.frame(classification_table)
-
-# Print the dataframe
-classification_df
-
-
-
-write_xlsx(classification_df, "results/plots/ClassificationSummary.xlsx")
-
-
-
 
 ################################################################################################
 ############################ LENGHT DISTRIBUTION PLOT ##########################################
 ################################################################################################
 
-pdf("results/plots/Lenght_distribution_plot.pdf")
+pdf("results/plots/Lenght_distribution_CNVs.pdf", width = 10, height = 8)
 
 
 # Create the density plot with lines for each classification
 ggplot(cnv_merged, aes(x = SIZE, color = Classification)) +
   geom_density() +
-  scale_x_continuous(breaks = seq(0, 250000, by = 25000)) +
-  scale_color_manual(values = c("gain" = "blue", "loss" = "red", "gain/loss" = "chartreuse3")) +
-  labs(title = "CNV Size Distribution", x = "Region length (bp)", y = "Count") +
+  scale_x_continuous(breaks = seq(0, 200000, by = 25000), limits = c(0, 200000)) +
+  scale_color_manual(values = c("gain" = "blue", "loss" = "orange", "gain/loss" = "chartreuse3")) +
+  labs(title = "CNV Size Distribution", x = "Region length (bp)", y = "Density") +
   theme_minimal() +
   theme(legend.title = element_blank())
 
+
 dev.off()
-
-
-
-
-#########################################################################################
-# Prepare cnv_merged for bedtools merging 
-
-
-#Separate REGION collumn into 3 colllumns for Chr, St, End positions
-cnv_merged <- cnv_merged %>%
-  separate(col = REGION, into = c("Chr", "st", "end"), sep = "[:-]")
-
-# Convert 'st' and "end" columns to numeric 
-cnv_merged$st <- as.numeric(as.character(cnv_merged$st))
-cnv_merged$end <- as.numeric(as.character(cnv_merged$end))
-
-#remove some collumns that are not relevant for the graph
-cnv_merged <- select(cnv_merged, -"TYPE", -"Classification", -"SIZE", -starts_with(c("F", "M", "R") ))
-
-write.table(cnv_merged, "results/CNVpytor/cnv_not_merged.bed", sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
-
-
 
 
 
