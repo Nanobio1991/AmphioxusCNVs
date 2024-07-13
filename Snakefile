@@ -412,28 +412,45 @@ rule merge_for_venn_diagram:
 
 
 
-
 	'''
-	Intersect for venn diagram
+	Intersections between features 
 	'''
-rule intersect_for_venn_diagram:
+rule intersections_between_features:
 	input:
 		cnv_merged_merged=rules.merge_for_venn_diagram.output.cnv_merged_merged,
 		exons_merged=rules.merge_for_venn_diagram.output.exons_merged,
-		merged_bed=rules.merge_for_venn_diagram.output.merged_bed,
-		repeats=rules.merge_for_venn_diagram.output.repeats
+		merged_bed=rules.merge_for_venn_diagram.output.merged_bed
 	output:
 		multiinter_exons="results/plots/venn/multiintersect_exons.bed",
-		multiinter_repeats="results/plots/venn/multiintersect_repeats.bed"
+		fixed_sds="results/plots/venn/fixed_sds.bed",
+		non_fixed_sds="results/plots/venn/non_fixed_sds.bed"
 	conda:
 		"envs/Detecting_CNVs.yaml"
 	shell:
 		"""
 		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.exons_merged} > {output.multiinter_exons}		
-		bedtools multiinter -i {input.cnv_merged_merged} {input.merged_bed} {input.repeats} > {output.multiinter_repeats}
+		bedtools intersect -a {input.merged_bed} -b {input.cnv_merged_merged} > {output.non_fixed_sds}
+		bedtools subtract -a {input.merged_bed} -b {input.cnv_merged_merged} > {output.fixed_sds}
 		"""
 
 
+
+	'''
+	Data for venn diagramm + plots for fixed/non-fixed SDs
+	'''
+rule plot_fixed_nonfixed_SDs:
+	input:
+		multiinter_exons= rules.intersections_between_features.output.multiinter_exons,
+		fixed_sds= rules.intersections_between_features.output.fixed_sds,
+		non_fixed_sds= rules.intersections_between_features.output.non_fixed_sds
+	output:
+		xsl_table="results/plots/venn/counts_for_venn_diagram.xlsx",
+		fixed_sds_plot="results/plots/fixed_sds.pdf",
+		non_fixed_sds_plot="results/plots/non_fixed_sds.pdf"
+	conda:
+		"envs/Finding_SDs.yaml"
+	script:
+		"scripts/venn_diagram.R"
 
 
 
